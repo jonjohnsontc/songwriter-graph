@@ -1,0 +1,6 @@
+## Accessing Genius API:
+- To make authenticated requests with an access token,
+ include it in an HTTP Authorization header preceded by the word "Bearer"
+ and a space. For example, the value of the header could be Bearer
+ 1234tokentokentoken.
+
