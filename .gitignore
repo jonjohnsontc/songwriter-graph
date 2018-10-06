@@ -2,3 +2,4 @@
 genius_song_ids.json
 genius_song_ids*.json
 song_analysis.json
+data/audio_analysis/
