@@ -15,6 +15,14 @@ from: http://web.media.mit.edu/~tristan/phd/dissertation/index.html
 - In auditory scene analysis, by which humans build mental descriptions of complex auditory environments, abrupt events represent important sound source-separation cues.
   - We chose to first detect sound events and segment the audio in order to facilitate its analysis, and refine the description of music. **This is going to be the recurrent theme throughout this document.
 
-## 3. Music Listening
+## 4. Musical Structures
+- The study was not designed to map music into subjective semantic spaces, but rather objective acoustic/musical dimensions. 
+- Heirarchical Representations:
+  - The study proposes heirarchical representations of the following musical elements:
+    - Pitch
+    - Rhythm
+    - Timbre
 
+## 5. Learning Music Signals
+- This chapter introduces learning strategies that apply to the music analysis context.
 
