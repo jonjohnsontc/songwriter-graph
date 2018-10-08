@@ -19,7 +19,7 @@ artists and record labels to collect.
 I'd like to build a tool which could help fans discover new music, based on
 what they're currently listening to. However, instead of putting the artist
 front-and-center in the recommendation, I'd like to give fans a glimpse at those
-who wrote the hit song. I believe recognition assists in building 
+who wrote the hit song.
 
 ### Proposed Methods:
 
