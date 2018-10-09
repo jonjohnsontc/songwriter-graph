@@ -1,5 +1,18 @@
-# capstone
+# Songwriter Index
 
+## Update: 10/08/18
+
+I've acquired the data necessary to perform a thorough EDA, and, at the very least, determine whether I'll be able to finish this model and subsequent analysis by October 22nd. The biggest issue in potentially preventing me from achieving that goal lies with the songwriter data that I'm able to match to each song I'm working with. I'm still pulling all of the necessary songwriter credits, however, I should be completed with that by this coming Thurs Oct. 11th.
+
+Nonetheless, I'm currently engaging in EDA to determine the viability of this model. I expect to be complete with EDA, and moving onto the modeling stage by this coming Saturday, Oct. 13th.
+
+Outside of whether I'll have enough good songwriter data to complete this project, the biggest obstacles to completing a great project on time rely *on time*. I don't have much time to play around with different models, though I'll try and fit multiple models with my local computer and AWS instance. 
+
+Through the end of the week, I'll be focusing on merging the data I have, conducting additional EDA, and beginning the modeling process. I expect to have a production-ready model by October 15th, and from then on, I'll focus on analysis and interpreting my findings.
+
+Time permitting, I'll begin working on a couple of different stretch goals, a) ingesting more song observations, potentially up to 50k songs, b) developing a website for people to use the tool themselves.
+
+---
 ## Problem Statement: 
 *Develop a model, which given a recording written by a particular songwriter
  or songwriters, can recommend similar sounding recordings written
