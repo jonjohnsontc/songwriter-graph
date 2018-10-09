@@ -10,7 +10,9 @@ Outside of whether I'll have enough good songwriter data to complete this projec
 
 Through the end of the week, I'll be focusing on merging the data I have, conducting additional EDA, and beginning the modeling process. I expect to have a production-ready model by October 15th, and from then on, I'll focus on analysis and interpreting my findings.
 
-Time permitting, I'll begin working on a couple of different stretch goals, a) ingesting more song observations, potentially up to 50k songs, b) developing a website for people to use the tool themselves.
+Time permitting, I'll begin working on a couple of different stretch goals:
+1. Ingesting more song observations, potentially up to 50k songs
+2. Developing a website for people to use the tool themselves.
 
 ---
 ## Problem Statement: 
