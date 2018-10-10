@@ -13,7 +13,7 @@ Talk given by Mark Koh
   - If the speechiness is a 1, I should probably drop it from my analysis
 - Valence is how happy or sad a track is -- very subjective
 - Liveness: probability distribution on whether a track is performed live
-  - Should DEFINITELY be dropped
+  - Should DEFINITELY be dropped  
 
 ## Audio Analysis:
 - NOTE: All of these measurements are estimates, so `confidence` should play a role in the modeling process. 
