@@ -5,3 +5,4 @@ song_analysis.json
 data/audio_analysis/
 song_details*.json
 genius_song_details*.json
+data/genre_dummies.csv
