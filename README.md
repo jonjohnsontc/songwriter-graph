@@ -9,7 +9,7 @@ SongIndex is the first step in a process to connect listeners to songwriters thr
 
 I believe the model constructed here addresses this problem, though I do believe it can improve significantly with the inclusion of a larger dataset (more songs), along with additional features, like song lyrics. 
 
-You're welcome to read the `Executive Summary` section below, which outlines the steps taken in the process to build this recommender, or dive directly into the `technical_report_nbs` folder, which runs through each step thoroughly with code and plots to help illustrate.
+You're welcome to read the `Executive Summary` section below, which outlines the steps taken in the process to build this recommender, or dive directly into the `notebooks` folder, which runs through each step thoroughly with code and plots to help illustrate.
 
 ## Executive Summary 
 
