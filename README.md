@@ -28,13 +28,14 @@ Here are a few example results to help illustrate the efficacy of this recommend
 |Willy Wonka (feat. Offset)|Macklemore|0.776872|
 |3005|Childish Gambino|0.689925
 |Ladders|Mac Miller|0.660775|
-|Ghost Town|Kanye West|0.641954|
-|Thrift Shop (feat. Wanz)|Macklemore & Ryan Lewis|0.640089|
 |No Role Modelz|J. Cole|0.636222|
-|Don't Like.1|Kanye West|0.634637|
+|Thrift Shop (feat. Wanz)|Macklemore & Ryan Lewis|0.640089|
 |Freaks And Geeks|Childish Gambino|0.62986|
 |By Design|Kid Cudi|0.628633|
+|God's Plan|Drake|0.607984|
+|Tie Me Down|New Boyz|0.59714|
 |Renegade|JAY Z|0.61611|
+
 
 #### "With Arms Wide Open" by Creed
 
