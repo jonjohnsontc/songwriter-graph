@@ -70,7 +70,7 @@ You'll find this project currently spread over 3 different folders, though this 
 
 - [data](./data) - Where all of the datasets generated are stored
 - [pickle](./pickle) - Where all of the pickled variables are stored
-- [technical_report_nbs](./technical_report_nbs) - The notebooks which comprise the technical report (please note that the notebooks prepended with i's are anciallary and are still works in progress, the numbered files which comprise the technical report are finished, however)
+- [notebooks](./notebooks) - The notebooks which comprise the technical report (please note that the notebooks prepended with i's are anciallary and are still works in progress, the numbered files which comprise the technical report are finished, however)
 - [`data_dictionary.md`](data_dictionary.md) - Where you can find definitions of all the features used in the recommender
 - [`requirements.txt`](requirements.txt) - All of the libraries necessary to run through each notebook
 - More Requirements.
