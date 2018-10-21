@@ -15,7 +15,7 @@ You're welcome to read the `Executive Summary` section below, which outlines the
 
 Using cosine similarity, I analyzed roughly 22000 song titles utilizing their corresponding Audio Features and Audio Analysis, as well as genre information tied to the songs performing artist, all obtained through the Spotify API, utilizing a Python wrapper aptly named Spotipy.
 
-Every song was measured on its similarity with the other recordings through the features contained in the aforementioned documents, along with some features that had been engineered through a combination of other features, which resulted in a total list of 74 song attributes, a complete listing of which can be found in the `03_preprocessing` notebook and `data_dictionary.txt` file. 
+Every song was measured on its similarity with the other recordings through the features contained in the aforementioned documents, along with some features that had been engineered through a combination of other features, which resulted in a total list of 74 song attributes, a complete listing of which can be found in the `data_dictionary.txt` file. 
 
 ### Results
 
