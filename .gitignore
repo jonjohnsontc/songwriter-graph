@@ -7,3 +7,4 @@ song_details*.json
 genius_song_details*.json
 data/genre_dummies.csv
 data/svd_df.csv
+pickle/cos_sim_mat_g.npy
