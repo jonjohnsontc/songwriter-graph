@@ -1,3 +1,5 @@
+import numpy as np
+
 def pt_grabber_sgl(song):
     '''
     Retrieve pitch and timbre summary statistics for specified song

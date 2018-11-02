@@ -1,3 +1,5 @@
+import json
+
 def kc_counter(lst):
     '''
     Return count of key changes throughout songs listed in individual json files
