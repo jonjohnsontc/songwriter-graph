@@ -15,7 +15,7 @@ You're welcome to read the `Executive Summary` section below, which outlines the
 
 Using cosine similarity, I analyzed roughly 22000 song titles utilizing their corresponding Audio Features and Audio Analysis, as well as genre information tied to the songs performing artist, all obtained through the Spotify API, utilizing a Python wrapper aptly named Spotipy.
 
-Every song was measured on its similarity with the other recordings through the features contained in the aforementioned documents, along with some features that had been engineered through a combination of other features, which resulted in a total list of 74 song attributes, a complete listing of which can be found in the `data_dictionary.txt` file. 
+Every song was measured on its similarity with the other recordings through the features contained in the aforementioned documents, along with some features that had been engineered through a combination of other features, which resulted in a total list of 74 song attributes, a complete listing of which can be found in the `data_dictionary.md` file. 
 
 ### Results
 
@@ -55,14 +55,14 @@ Here are a few example results to help illustrate the efficacy of this recommend
 
 In the near future, I plan on adding a number of additions, including:
 
-- Additional titles, starting with the full catalog of each featured artist 
-- A web interface to query the recommender
+- Additional titles, starting with the full catalog of each currently featured artist 
+- A web interface to query the recommender (you can view the code so far [here](https://github.com/jonjohnsontc/si_app))
 - Adding song lyrics as an additional set of features
 - Incorporating songwriter credits into the model
 
 Eventually, I plan on revamping the recommender entirely, into the aforementioned tool to connect listeners with songwriters. The idea of the model being two-fold (and therefore made up of two different models):
 
-- Given a song, recommend songwriters whom write similarly to how the song in question was written
+- Given a song, recommend songwriters who write the most similar to how the song in question was written
 - Recommend the songwriter's works which sound most like the original song submitted
 
 ## Layout 
@@ -72,6 +72,7 @@ You'll find this project currently spread over 3 different folders, though this 
 - [data](./data) - Where all of the datasets generated are stored
 - [pickle](./pickle) - Where all of the pickled variables are stored
 - [notebooks](./notebooks) - The notebooks which comprise the technical report (please note that the notebooks prepended with i's are anciallary and are still works in progress, the numbered files which comprise the technical report are finished, however)
+  - [library](./notebooks/library) - Where you can find all of the re-usable functions utilized to collect and transform the data used in the recommender
 - [`data_dictionary.md`](data_dictionary.md) - Where you can find definitions of all the features used in the recommender
 - [`requirements.txt`](requirements.txt) - All of the libraries necessary to run through each notebook
 - More Requirements.
