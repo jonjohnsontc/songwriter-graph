@@ -1,4 +1,9 @@
+# reg stuff
 .ipynb_checkpoints
+__pycache__*
+.env
+
+# data files
 genius_song_ids.json
 genius_song_ids*.json
 song_analysis.json
@@ -7,4 +12,9 @@ song_details*.json
 genius_song_details*.json
 data/genre_dummies.csv
 data/svd_df.csv
+
+# big interim files / pickles
 pickle/cos_sim_mat_g.npy
+
+# scrape logz
+geckodriver.log
