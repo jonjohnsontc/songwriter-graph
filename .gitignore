@@ -17,6 +17,7 @@ data/*.xlsx
 
 # big interim files / pickles
 pickle/cos_sim_mat_g.npy
+pickle/ascap_credits.pkl
 
 # scrape logz
 geckodriver.log
