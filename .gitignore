@@ -14,6 +14,7 @@ data/genre_dummies.csv
 data/svd_df.csv
 data/ascap_songs/
 data/*.xlsx
+data/bash_history.txt
 
 # big interim files / pickles
 pickle/cos_sim_mat_g.npy
