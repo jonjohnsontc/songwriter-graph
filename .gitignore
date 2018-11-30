@@ -22,3 +22,6 @@ pickle/ascap_credits.pkl
 
 # scrape logz
 geckodriver.log
+
+# misc
+query_api.ipynb
