@@ -1,4 +1,5 @@
 .ipynb_checkpoints
+.env
 genius_song_ids.json
 genius_song_ids*.json
 song_analysis.json
@@ -7,4 +8,9 @@ song_details*.json
 genius_song_details*.json
 data/genre_dummies.csv
 data/svd_df.csv
+data/albums/
+data/song_features/	
 pickle/cos_sim_mat_g.npy
+data/album_tracks/
+/data/
+data/
