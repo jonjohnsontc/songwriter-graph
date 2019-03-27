@@ -1,4 +1,9 @@
-def analysis_sorter(lst):
+import json
+import os
+import pandas as pd
+import numpy as np
+
+def analysis_sorter(lst, fp):
     '''
     Iterate through individual song .json files for sections, and calculate the mean and variance for 
     'confidence', 'duration', 'loudness', 'mode', 'mode_confidence', 'tempo', and 'tempo_confidence' values. 
@@ -6,41 +11,116 @@ def analysis_sorter(lst):
     Returns two lists of dictionaries, one containing each song's section mean values, the other containing 
     each song's section variance values.
     '''
-    mean_dicts = []
-    var_dicts = []
+    mean_dicts = {}
+    var_dicts = {}
     count = 0
     for record in lst:
-        with open('../data/audio_analysis/{}'.format(record), 'r') as f:
-            analysis = json.load(f)
-            if isinstance(analysis, dict):
-                if 'sections' in analysis:
-                    try:
-                        mean_dict = {}
-                        var_dict = {}
-                        df = pd.DataFrame(analysis['sections'])
-                        mean = df[['confidence', 'duration', 'loudness', 'mode', 'mode_confidence',
-                                   'tempo', 'tempo_confidence']].mean().to_dict()
-                        var = df[['confidence', 'duration', 'loudness', 'mode', 'mode_confidence',
-                                   'tempo', 'tempo_confidence']].var().to_dict()
-                        mean_dict[record.replace('.json', '')] = mean
-                        var_dict[record.replace('.json', '')] = var
-                        mean_dicts.append(mean_dict)
-                        var_dicts.append(var_dict)
-                    except:
-                        mean_dict = {}
-                        var_dict = {}
-                        mean_dict[(record.replace('.json',''))] = 'Unable to calculate mean of section features'
-                        var_dict[(record.replace('.json',''))] = 'Unable to calculate variance of section features'
-                        mean_dicts.append(mean_dict)
-                        var_dicts.append(var_dict)
+        try:
+            with open(f'{fp}/{record}.json', 'r') as f:
+                analysis = json.load(f)
+                if isinstance(analysis, dict) & if 'sections' in analysis:
+                    for section in analysis['sections']
+                        try:
+                            mean_dict[count] = section
+                        except Exception as e:
+                            mean_dict[count] = f'Exception: {e}'
+
+            
+            try:
+                df = pd.DataFrame.from_dict(mean_dict, orient='index')    
+                mean = df[['confidence', 'duration', 'loudness', 'mode', 'mode_confidence',
+                        'tempo', 'tempo_confidence']].mean().to_dict()
+                var = df[['confidence', 'duration', 'loudness', 'mode', 'mode_confidence',
+                        'tempo', 'tempo_confidence']].var().to_dict()
+                mean_dicts[record.replace('.json', '')] = mean
+                var_dicts[record.replace('.json', '')] = var
+            except:
+                mean_dicts[(record.replace('.json',''))] = {
+                    'confidence' : np.NaN, 
+                    'duration' : np.NaN, 
+                    'loudness' : np.NaN, 
+                    'mode' : np.NaN, 
+                    'mode_confidence': np.NaN,
+                    'tempo' : np.NaN, 
+                    'tempo_confidence' : np.NaN
+                }
+                var_dicts[(record.replace('.json',''))] = {
+                    'confidence' : np.NaN, 
+                    'duration' : np.NaN, 
+                    'loudness' : np.NaN, 
+                    'mode' : np.NaN, 
+                    'mode_confidence': np.NaN,
+                    'tempo' : np.NaN, 
+                    'tempo_confidence' : np.NaN
+                }            
             count += 1
             if count % 5000 == 0:
                 print("Completed {} files".format(count))
             if count % 5000 == 0:
-                with open('../data/section_var_summary_{}.json'.format(count), 'w') as f:
+                with open('../../data/section_var_summary_{}.json'.format(count), 'w') as f:
                     json.dump(var_dicts, f)
                     var_dicts.clear()
-                with open('../data/section_mean_summary_{}.json'.format(count), 'w') as f:
+                with open('../../data/section_mean_summary_{}.json'.format(count), 'w') as f:
                     json.dump(mean_dicts, f)
                     mean_dicts.clear()
+        except Exception as e:
+            print(e)
     return mean_dicts, var_dicts
+
+
+def pt_grabber(fp):
+    '''
+    Retrieves pitch and timbre summary statistics for every song in audio_analysis folder.
+    '''
+    timbre_means = []
+    timbre_var = []
+    pitch_means = []
+    pitch_var = []
+    count = 0
+
+    aa_directory = os.listdir(fp)
+    audio_analysis_files = list(filter(lambda x: '.json' in str(x))
+
+    for record in audio_analysis_files:
+        with open(f'{fp}/{record}.json', 'r') as f:
+            analysis = json.load(f)
+            if isinstance(analysis, dict):
+                if 'segments' in analysis:
+                    try:
+                        pm, tm, pv, tv = pt_grabber_sgl(analysis)
+                    except:
+                        response = f"unable to gather summary stats\
+                             for song {record.replace(".json", '')} pitch & timbre"
+        try:
+            timbre_means.append(dict({record.replace(".json", ""):tm}))
+            timbre_var.append(dict({record.replace(".json", ""):tv}))
+            pitch_means.append(dict({record.replace(".json", ""):pm}))
+            pitch_var.append(dict({record.replace(".json", ""):pv}))
+        except:
+            [lists.append(response) for lists in [timbre_means, timbre_var, 
+                                                  pitch_means, pitch_var]]
+        count += 1
+        if count % 1000 == 0:
+            print("grabbing {}".format(count + 1))
+    return timbre_means, timbre_var, pitch_means, pitch_var
+
+
+def pt_grabber_sgl(song):
+    '''
+    Retrieve pitch and timbre summary statistics for specified song
+    '''
+    pitches = np.array(song['segments'][0]['pitches'])
+    timbre = np.array(song['segments'][0]['timbre'])
+    
+    for record in song['segments']:
+        new_pitch = np.array(record['pitches'])
+        new_timbre = np.array(record['timbre'])
+        pitches = np.vstack((pitches, new_pitch))
+        timbre = np.vstack((timbre, new_timbre))
+
+    pitch_means = np.mean(pitches, axis = 0)
+    timbre_means = np.mean(timbre, axis = 0)
+    pitch_var = np.var(pitches, axis = 0)
+    timbre_var = np.var(timbre, axis = 0)
+
+    return pitch_means, timbre_means, pitch_var, timbre_var
