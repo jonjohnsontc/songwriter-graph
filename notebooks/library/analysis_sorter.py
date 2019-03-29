@@ -13,21 +13,42 @@ def analysis_sorter(lst, fp):
     '''
     mean_dicts = {}
     var_dicts = {}
+    exceptions_dict = {}
     count = 0
     for record in lst:
         try:
             with open(f'{fp}/{record}.json', 'r') as f:
                 analysis = json.load(f)
-                if isinstance(analysis, dict) & if 'sections' in analysis:
-                    for section in analysis['sections']
+        except Exception as e:
+            exceptions_dict[record] = str(e)
+            mean_dicts[record] = {
+                    'confidence' : np.NaN, 
+                    'duration' : np.NaN, 
+                    'loudness' : np.NaN, 
+                    'mode' : np.NaN, 
+                    'mode_confidence': np.NaN,
+                    'tempo' : np.NaN, 
+                    'tempo_confidence' : np.NaN
+            }
+            var_dicts[record] = {
+                    'confidence' : np.NaN, 
+                    'duration' : np.NaN, 
+                    'loudness' : np.NaN, 
+                    'mode' : np.NaN, 
+                    'mode_confidence': np.NaN,
+                    'tempo' : np.NaN, 
+                    'tempo_confidence' : np.NaN
+            }
+                if isinstance(analysis, dict) & 'sections' in analysis:
+                    for section in analysis['sections']:
                         try:
-                            mean_dict[count] = section
+                            mean_dicts[count] = section
                         except Exception as e:
-                            mean_dict[count] = f'Exception: {e}'
+                            mean_dicts[count] = f'Exception: {e}'
 
             
             try:
-                df = pd.DataFrame.from_dict(mean_dict, orient='index')    
+                df = pd.DataFrame.from_dict(mean_dicts, orient='index')    
                 mean = df[['confidence', 'duration', 'loudness', 'mode', 'mode_confidence',
                         'tempo', 'tempo_confidence']].mean().to_dict()
                 var = df[['confidence', 'duration', 'loudness', 'mode', 'mode_confidence',
@@ -68,7 +89,7 @@ def analysis_sorter(lst, fp):
     return mean_dicts, var_dicts
 
 
-def pt_grabber(fp):
+def pt_grabber(filepath):
     '''
     Retrieves pitch and timbre summary statistics for every song in audio_analysis folder.
     '''
@@ -78,19 +99,19 @@ def pt_grabber(fp):
     pitch_var = []
     count = 0
 
-    aa_directory = os.listdir(fp)
-    audio_analysis_files = list(filter(lambda x: '.json' in str(x))
+    aa_directory = os.listdir(filepath)
+    audio_analysis_files = list(filter(lambda x: '.json' in str(x), aa_directory))
 
     for record in audio_analysis_files:
-        with open(f'{fp}/{record}.json', 'r') as f:
+        with open(f'{filepath}/{record}', 'r') as f:
             analysis = json.load(f)
-            if isinstance(analysis, dict):
-                if 'segments' in analysis:
-                    try:
-                        pm, tm, pv, tv = pt_grabber_sgl(analysis)
-                    except:
-                        response = f"unable to gather summary stats\
-                             for song {record.replace(".json", '')} pitch & timbre"
+        if isinstance(analysis, dict):
+            if 'segments' in analysis:
+                try:
+                    pm, tm, pv, tv = pt_grabber_sgl(analysis)
+                except:
+                    response = f"unable to gather summary stats \
+                        for song {record.replace('.json', '')} pitch & timbre"
         try:
             timbre_means.append(dict({record.replace(".json", ""):tm}))
             timbre_var.append(dict({record.replace(".json", ""):tv}))
