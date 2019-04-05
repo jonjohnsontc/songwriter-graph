@@ -2,6 +2,7 @@ import json
 import os
 import pandas as pd
 import numpy as np
+from collections import defaultdict
 
 def analysis_sorter(lst, fp):
     '''
@@ -39,12 +40,12 @@ def analysis_sorter(lst, fp):
                     'tempo' : np.NaN, 
                     'tempo_confidence' : np.NaN
             }
-                if isinstance(analysis, dict) & 'sections' in analysis:
-                    for section in analysis['sections']:
-                        try:
-                            mean_dicts[count] = section
-                        except Exception as e:
-                            mean_dicts[count] = f'Exception: {e}'
+        if isinstance(analysis, dict) & 'sections' in analysis:
+            for section in analysis['sections']:
+                try:
+                    mean_dicts[count] = section
+                except Exception as e:
+                    mean_dicts[count] = f'Exception: {e}'
 
             
             try:
@@ -78,14 +79,12 @@ def analysis_sorter(lst, fp):
             if count % 5000 == 0:
                 print("Completed {} files".format(count))
             if count % 5000 == 0:
-                with open('../../data/section_var_summary_{}.json'.format(count), 'w') as f:
+                with open('../data/section_var_summary_{}.json'.format(count), 'w') as f:
                     json.dump(var_dicts, f)
                     var_dicts.clear()
-                with open('../../data/section_mean_summary_{}.json'.format(count), 'w') as f:
+                with open('../data/section_mean_summary_{}.json'.format(count), 'w') as f:
                     json.dump(mean_dicts, f)
                     mean_dicts.clear()
-        except Exception as e:
-            print(e)
     return mean_dicts, var_dicts
 
 
@@ -93,18 +92,27 @@ def pt_grabber(filepath):
     '''
     Retrieves pitch and timbre summary statistics for every song in audio_analysis folder.
     '''
-    timbre_means = []
-    timbre_var = []
-    pitch_means = []
-    pitch_var = []
+    # timbre_means = []
+    # timbre_var = []
+    # pitch_means = []
+    # pitch_var = []
+    timbre_means = {}
+    timbre_var = {}
+    pitch_means = {}
+    pitch_var = {}
+    errors = {}
     count = 0
 
     aa_directory = os.listdir(filepath)
     audio_analysis_files = list(filter(lambda x: '.json' in str(x), aa_directory))
 
     for record in audio_analysis_files:
-        with open(f'{filepath}/{record}', 'r') as f:
-            analysis = json.load(f)
+        try: 
+            with open(f'{filepath}/{record}', 'r') as f:
+                analysis = json.load(f)
+        except Exception as e:
+            print(f'unable to pull {record}, {str(e)}')
+            errors[record] = e
         if isinstance(analysis, dict):
             if 'segments' in analysis:
                 try:
@@ -113,17 +121,49 @@ def pt_grabber(filepath):
                     response = f"unable to gather summary stats \
                         for song {record.replace('.json', '')} pitch & timbre"
         try:
-            timbre_means.append(dict({record.replace(".json", ""):tm}))
-            timbre_var.append(dict({record.replace(".json", ""):tv}))
-            pitch_means.append(dict({record.replace(".json", ""):pm}))
-            pitch_var.append(dict({record.replace(".json", ""):pv}))
-        except:
-            [lists.append(response) for lists in [timbre_means, timbre_var, 
-                                                  pitch_means, pitch_var]]
+            timbre_means[record.replace(".json", "")] = {'timbre_means' : tm}
+            timbre_var[record.replace(".json", "")] = {'timbre_var' : tv}
+            pitch_means[record.replace(".json", "")] = {'pitch_means' : pm}
+            pitch_var[record.replace(".json", "")] = {'pitch_var' : pv}
+        except Exception as e:
+            timbre_means[record.replace(".json", "")] = e
+            timbre_var[record.replace(".json", "")] = e
+            pitch_means[record.replace(".json", "")] = e
+            pitch_var[record.replace(".json", "")] = e 
+        # try:
+        #     timbre_means.append(dict({record.replace(".json", ""):tm}))
+        #     timbre_var.append(dict({record.replace(".json", ""):tv}))
+        #     pitch_means.append(dict({record.replace(".json", ""):pm}))
+        #     pitch_var.append(dict({record.replace(".json", ""):pv}))
+        # except:
+        #     [lists.append(response) for lists in [timbre_means, timbre_var, 
+        #                                           pitch_means, pitch_var]]
         count += 1
-        if count % 1000 == 0:
+        if count % 10000 == 0:
             print("grabbing {}".format(count + 1))
-    return timbre_means, timbre_var, pitch_means, pitch_var
+        if count % 100000 == 0:
+            print("Saving results to file")
+            with open(f'../data/pitch_timbre_means_vars/timbre_means_{count}.json', 'w') as f:
+                json.dump(timbre_means, f)
+            with open(f'../data/pitch_timbre_means_vars/timbre_var_{count}.json', 'w') as f:
+                json.dump(timbre_var, f)
+            with open(f'../data/pitch_timbre_means_vars/pitch_means_{count}.json', 'w') as f:
+                json.dump(pitch_means, f)    
+            with open(f'../data/pitch_timbre_means_vars/pitch_var_{count}.json', 'w') as f:
+                json.dump(pitch_var, f)
+            for d in [timbre_means, timbre_var, pitch_means, pitch_var]:
+                d.clear()
+    with open(f'../data/pitch_timbre_means_vars/timbre_means_{count}.json', 'w') as f:
+        json.dump(timbre_means, f)
+    with open(f'../data/pitch_timbre_means_vars/timbre_var_{count}.json', 'w') as f:
+        json.dump(timbre_var, f)
+    with open(f'../data/pitch_timbre_means_vars/pitch_means_{count}.json', 'w') as f:
+        json.dump(pitch_means, f)    
+    with open(f'../data/pitch_timbre_means_vars/pitch_var_{count}.json', 'w') as f:
+        json.dump(pitch_var, f)
+    with open(f'../data/pitch_timbre_means_vars/errors_{count}.json', 'w') as f:
+        json.dump(errors, f)    
+    return 'finished'
 
 
 def pt_grabber_sgl(song):
