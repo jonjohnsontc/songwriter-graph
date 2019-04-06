@@ -121,10 +121,10 @@ def pt_grabber(filepath):
                     response = f"unable to gather summary stats \
                         for song {record.replace('.json', '')} pitch & timbre"
         try:
-            timbre_means[record.replace(".json", "")] = {'timbre_means' : tm}
-            timbre_var[record.replace(".json", "")] = {'timbre_var' : tv}
-            pitch_means[record.replace(".json", "")] = {'pitch_means' : pm}
-            pitch_var[record.replace(".json", "")] = {'pitch_var' : pv}
+            timbre_means[record.replace(".json", "")] = {'timbre_means' : tm.tolist()}
+            timbre_var[record.replace(".json", "")] = {'timbre_var' : tv.tolist()}
+            pitch_means[record.replace(".json", "")] = {'pitch_means' : pm.tolist()}
+            pitch_var[record.replace(".json", "")] = {'pitch_var' : pv.tolist()}
         except Exception as e:
             timbre_means[record.replace(".json", "")] = e
             timbre_var[record.replace(".json", "")] = e
