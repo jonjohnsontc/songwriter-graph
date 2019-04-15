@@ -112,7 +112,7 @@ def pt_grabber(filepath):
                 analysis = json.load(f)
         except Exception as e:
             print(f'unable to pull {record}, {str(e)}')
-            errors[record] = e
+            errors[record] = str(e)
         if isinstance(analysis, dict):
             if 'segments' in analysis:
                 try:
@@ -126,10 +126,10 @@ def pt_grabber(filepath):
             pitch_means[record.replace(".json", "")] = {'pitch_means' : pm.tolist()}
             pitch_var[record.replace(".json", "")] = {'pitch_var' : pv.tolist()}
         except Exception as e:
-            timbre_means[record.replace(".json", "")] = e
-            timbre_var[record.replace(".json", "")] = e
-            pitch_means[record.replace(".json", "")] = e
-            pitch_var[record.replace(".json", "")] = e 
+            timbre_means[record.replace(".json", "")] = str(e)
+            timbre_var[record.replace(".json", "")] = str(e)
+            pitch_means[record.replace(".json", "")] = str(e)
+            pitch_var[record.replace(".json", "")] = str(e) 
         # try:
         #     timbre_means.append(dict({record.replace(".json", ""):tm}))
         #     timbre_var.append(dict({record.replace(".json", ""):tv}))

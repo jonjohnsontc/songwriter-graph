@@ -23,6 +23,9 @@ Steps outlined will be numbered from days after the date above.
     - Then, for every song, a given author would have a collection of "topics" that would relate to them
   - PCA on each song?
 - Means of recommending songs from given songwriters
+  - Likely cosine similarity matrix b/w the two (unless i have the math wrong)
+- Means of mapping songwriters to one another
+  - Likely cosine (or other distance metric)
 - Audio analysis for remaining tracks that I don't yet have
 - For future: means of scraping additional PRO websites
 - Deduplicating songwriters 
@@ -30,15 +33,17 @@ Steps outlined will be numbered from days after the date above.
 - Song Lyrics
   - Deciding how to incorporate song lyrics
   - Could decide to only retrieve lyrics for the songs I can actually recommend on?
+- Figuring out how tracks should be pulled going forward
+- Re-doing functions to make them more efficient (i.e., grabbing means / variances of necessary things)
+
 
 ## 3. Plan
-2/16 - Continue Pulling Audio Analysis & Start Ideating on Modeling Strats
-2/17 - Continue Pulling Audio Analysis 
-2/18 - Continue Pulling Audio Analysis
-2/19 - Finish Pulling Audio Analysis
-2/20 - Migrate Files from EC2 unto external drive
-5. Begin modeling search
-a. reach out to people on Automation COP
-6. Synthesize new dataset
-7. Construct small modeling tests
+- Complete Preprocessing
+- Song to Song Model?
+- Complete Songwriter Preprocessing + Modeling Decision
+- Complete Songwriter modeling
+- Begin Work on New Song Capturing
+
+## 4. Additional Ideas
+- Provide each songwriters most frequent collaborators (could be made with jaccard maybe)?
 
