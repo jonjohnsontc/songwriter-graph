@@ -88,6 +88,9 @@ def analysis_sorter(lst, fp):
     return mean_dicts, var_dicts
 
 
+# Should be re-done to more easily have a resultant dataframe with
+# all of the means & variances combined
+# See: `combine_pitch_timbre_files` for more info
 def pt_grabber(filepath):
     '''
     Retrieves pitch and timbre summary statistics for every song in audio_analysis folder.

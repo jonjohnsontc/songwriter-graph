@@ -47,3 +47,10 @@ Steps outlined will be numbered from days after the date above.
 ## 4. Additional Ideas
 - Provide each songwriters most frequent collaborators (could be made with jaccard maybe)?
 
+
+## 5. Modeling Strategies
+
+### 5a. Weighting
+- Take each songwriter & divide each of their works by their average work (to make their songs closer in space to one another, and further from frequent collaborators)
+- $$ ===
+
