@@ -1,3 +1,4 @@
+import glob
 import os
 
 import dask
@@ -9,14 +10,50 @@ import numpy as np
 
 from numba import jit
 
-client = Client()
 
-def mk_songwriter_dataset(songwriter_df, genre_song_lookup_df, pitch_timbre_df):
+# client = Client('scheduler:8786')
+def _find_latest_file(path):
+    '''
+    Finds the latest file in a path, based off of a glob string passed
+    in 'path'
+    '''
+    # glob hint https://stackoverflow.com/a/39327156
+    list_of_files = glob.glob(path)
+    latest_file = max(list_of_files)
+    return latest_file
+    
+
+def mk_songwriter_dataset(songwriter_df_path, 
+                        genre_song_lookup_df_path, 
+                        pitch_timbre_df_path, 
+                        song_features_path):
     '''
     Creates dataframe of songs with features ready for modeling
     '''
-    if isinstance(songwriter_df, dask.dataframe.core.DataFrame)
-    pass
+    list_of_paths = [
+        songwriter_df_path,
+        genre_song_lookup_df_path,
+        pitch_timbre_df_path,
+        song_features_path,
+    ]
+    latest_file_list = list(map(_find_latest_file, list_of_paths))
+
+    songwriter_df = dd.read_csv(latest_file_list[0])
+    genre_song_lookup_df = dd.read_csv(latest_file_list[1])
+    pitch_timbre_df = dd.read_csv(latest_file_list[2])
+    song_features_df = dd.read_csv(latest_file_list[3])
+
+    songwriter_and_genres = dd.merge(songwriter_df, 
+                                genre_song_lookup_df,
+                                on = 'song_id' )
+    songwriter_genres_and_pt = dd.merge(songwriter_and_genres,
+                                        pitch_timbre_df,
+                                        on = 'track_id')
+    ready_for_modeling_df = dd.merge(songwriter_genres_and_pt,
+                                        song_features_df,
+                                        on = 'track_id')
+    return ready_for_modeling_df
+
 
 
 def mk_genre_dummies(genre_song_lookup_df):
@@ -41,12 +78,12 @@ def create_avg_sngwrtr_value(ddf):
     new dask dataframe with said avg values
     '''
     grouped_vals_ddf = ddf.groupby('WID').mean()
-    ddf_with_avgs = dd.concat([
-        ddf,
-        grouped_vals_ddf
-    ])
-    return ddf_with_avgs
+    return grouped_vals_ddf
 
+
+def normalize_sngwriter(ddf):
+    grouped_vals_ddf = ddf.groupby('WID').apply(lambda x: x / x.mean() )
+    return grouped_vals_ddf
 
 
 def mk_msong_list(song_list):
