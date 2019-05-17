@@ -37,26 +37,28 @@ def get_song_feats(fp):
         with open(file, 'r') as f:
             dict_of_song_feats = json.load(f)
         for entry in dict_of_song_feats:
-            if not dict_of_song_feats[entry][0] == None:
-                base_song_features[dict_of_song_feats[entry][0]['id']]\
-                    = dict_of_song_feats[entry][0]
+            for i in range(len(dict_of_song_feats[entry])):
+                if not dict_of_song_feats[entry][i] == None:
+                    base_song_features[dict_of_song_feats[entry][i]['id']]\
+                        = dict_of_song_feats[entry][i]
         # for entry in dict_of_song_feats:
         #     base_song_features[count] = ['3']
         count += 1
         if count % 100 == 0:
             print('{} files completed'.format(count))
 
-    with open('data/interim/song_features/features_{}.json'\
-              .format(date.today().strftime("%d%m%Y")), 
+    with open('../data/interim/song_features/features_{}.json'\
+              .format(date.today().strftime("%Y%m%d")), 
                     'w') as f:
         json.dump(base_song_features, f)
     return
 
 
-def rm_unnecessary_entries(song_features_json_fp):
+def mk_song_feats_df(song_features_json_fp):
     '''
     Takes new Spotify song features .json, and transforms it to
-    a csv file while also eliminating unnecessary columns
+    a csv file while also eliminating unnecessary columns, and 
+    transforming other columns to numerical ones
     '''
     song_features_ddf = dd.read_json(song_features_json_fp,
                                         orient = 'index')
@@ -69,7 +71,7 @@ def rm_unnecessary_entries(song_features_json_fp):
                                                     'type',
                                                     ])
     clean_song_features_df = clean_song_features_ddf.compute()
-    clean_song_features_df.to_csv('../data/interim/song_features_{}.csv'.format(date.today().strftime("%d%m%Y")))
+    clean_song_features_df.to_csv('../data/interim/song_features_{}.csv'.format(date.today().strftime("%Y%m%d")))
 
     return
 

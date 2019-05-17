@@ -21,7 +21,7 @@ def _find_latest_file(path):
     list_of_files = glob.glob(path)
     latest_file = max(list_of_files)
     return latest_file
-    
+
 
 def mk_songwriter_dataset(songwriter_df_path, 
                         genre_song_lookup_df_path, 
@@ -38,14 +38,24 @@ def mk_songwriter_dataset(songwriter_df_path,
     ]
     latest_file_list = list(map(_find_latest_file, list_of_paths))
 
-    songwriter_df = dd.read_csv(latest_file_list[0])
-    genre_song_lookup_df = dd.read_csv(latest_file_list[1])
-    pitch_timbre_df = dd.read_csv(latest_file_list[2])
-    song_features_df = dd.read_csv(latest_file_list[3])
+    songwriter_df = dd.read_csv(latest_file_list[0],
+                    # should be pd.Int32Dtype() but running into error
+                                dtype = {'IPI': np.float64})\
+                        .rename(columns = {'Unnamed: 0' : 'index'})\
+                        .set_index('index')
+    genre_song_lookup_df = dd.read_csv(latest_file_list[1])\
+                            .rename(columns = {'Unnamed: 0' : 'index'})\
+                            .set_index('index')
+    pitch_timbre_df = dd.read_csv(latest_file_list[2])\
+                        .rename(columns = {'Unnamed: 0' : 'index'})\
+                        .set_index('index')
+    song_features_df = dd.read_csv(latest_file_list[3])\
+                        .rename(columns = {'Unnamed: 0' : 'index'})\
+                        .set_index('index')
 
     songwriter_and_genres = dd.merge(songwriter_df, 
                                 genre_song_lookup_df,
-                                on = 'song_id' )
+                                on = 'track_id' )
     songwriter_genres_and_pt = dd.merge(songwriter_and_genres,
                                         pitch_timbre_df,
                                         on = 'track_id')
@@ -71,7 +81,15 @@ def mk_genre_dummies(genre_song_lookup_df):
     return genre_dummies_dd
 
 
-def create_avg_sngwrtr_value(ddf):
+def rm_non_modeling_feats(ddf):
+    '''
+    Removes features not usable for modeling prior to normalizing
+    each songwriter by their avg value
+    '''
+    modeling_feats_only_ddf = ddf.drop()
+
+
+def mk_avg_sngwrtr_value(ddf):
     '''
     Creates an average song value for each songwriter included in the 
     dataset, and is combined with the original dataset to return a 

@@ -7,7 +7,7 @@ __pycache__*
 genius_song_ids.json
 genius_song_ids*.json
 song_analysis.json
-data/
+data/*
 song_details*.json
 genius_song_details*.json
 
