@@ -1,6 +1,7 @@
 def top_10(artist_ids):
     '''
-    Retrieves top 10 most popular tracks on Spotify for the artists specified in the `artist_ids` listing. 
+    Retrieves top 10 most popular tracks on Spotify for the artists
+    specified in the `artist_ids` listing. 
     '''
     top_10s = []
 

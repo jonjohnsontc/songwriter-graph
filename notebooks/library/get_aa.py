@@ -1,3 +1,8 @@
+# Put this with all of the other Spotify related access functions
+
+import json
+import time
+
 def get_aa(song_list):
     '''
     Retrieve audio analysis for every song in `song_list` and store each in separate .json file.
