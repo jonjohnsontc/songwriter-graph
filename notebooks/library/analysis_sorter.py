@@ -1,8 +1,15 @@
 import json
 import os
+from collections import defaultdict
+from datetime import date
+
 import pandas as pd
 import numpy as np
-from collections import defaultdict
+
+from dask_ml.decomposition import PCA
+
+import boto3
+
 
 def analysis_sorter(lst, fp):
     '''
@@ -188,3 +195,76 @@ def pt_grabber_sgl(song):
     timbre_var = np.var(timbre, axis = 0)
 
     return pitch_means, timbre_means, pitch_var, timbre_var
+
+
+def pt_pca_sgl(song : dict) -> np.ndarray:
+    '''
+    Performs PCA on Pitch and Timbre values in a single song segment
+    '''
+    pitches = np.hsplit(np.array(song['segments'][0]['pitches']), 12)
+    timbre = np.hsplit(np.array(song['segments'][0]['pitches']), 12)
+    for i in range(1, len(song['segments'])):
+        pitches = np.hstack([pitches, np.hsplit(np.array(\
+            song['segments'][i]['pitches']), 12)])
+        timbre = np.hstack([timbre, np.hsplit(np.array(\
+            song['segments'][i]['timbre']), 12)])
+
+    ppca = PCA(10, random_state=333)
+    tpca = PCA(10, random_state=333)
+
+    pitch_pca = ppca.fit_transform(pitches)
+    timbre_pca = tpca.fit_transform(timbre)
+
+    return pitch_pca, timbre_pca
+
+
+def pt_pca_grabber(filepath : str) -> str:
+    '''
+    Retrieves pitch and timbre summary statistics for every song in 
+    audio_analysis folder.
+    '''
+    timbre_dict= {}
+    pitch_dict = {}
+    errors = {}
+    count = 0
+    cd = date.today().strftime('%Y%m%d')
+
+    aa_directory = os.listdir(filepath)
+    audio_analysis_files = list(filter(lambda x: '.json' in str(x), 
+                                                aa_directory))
+
+    for record in audio_analysis_files:
+        try: 
+            with open(f'{filepath}/{record}', 'r') as f:
+                analysis = json.load(f)
+        except FileNotFoundError as fe:
+            print(f'unable to pull {record}, {str(fe)}')
+            errors[record] = str(fe)
+
+        if isinstance(analysis, dict):
+            if 'segments' in analysis:
+                try:
+                    pitch_pca, timbre_pca = pt_pca_sgl(record)
+                    pitch_dict[record] = pitch_pca
+                    timbre_dict[record] = timbre_pca
+                except Exception as e:
+                    errors[record] = str(e)
+            else: 
+                errors[record] = 'Segments not available in aa file'
+        else:
+            errors[record] = 'File is not a dict'
+        
+        count += 1
+
+        if count % 100000 == 0:
+            print('{count} records completed')
+            with open(f'../data/interim/pitch_pca/pitch_pca_{count}_{cd}.json', 'w') as f:
+                json.dump(pitch_dict, f)
+            with open(f'../data/interim/timbre_pca/timbre_pca_{count}_{cd}.json', 'w') as f:
+                json.dump(timbre_dict, f)
+        with open(f'../data/pitch_pca/pitch_pca_{count}_{cd}.json', 'w') as f:
+            json.dump(pitch_dict, f)
+        with open(f'../data/timbre_pca/timbre_pca_{count}_{cd}.json', 'w') as f:
+            json.dump(timbre_dict, f)
+        return "finished"
+        
