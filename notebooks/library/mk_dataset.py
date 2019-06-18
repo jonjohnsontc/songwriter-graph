@@ -1,5 +1,6 @@
 import glob
 import os
+from collections import defaultdict
 
 import dask
 from dask import dataframe as dd
@@ -63,6 +64,18 @@ def mk_songwriter_dataset(songwriter_df_path,
                                         song_features_df,
                                         on = 'track_id')
     return ready_for_modeling_df
+
+def mk_song_count_per_songwriter_dict(song_df_with_writer_and_composition_id):
+    '''
+    Creates a dictionary with writer id's as keys and each of the writers songs as values
+    '''
+    songwriter_corpus_dict = defaultdict(set)
+    song_dict = song_df_with_writer_and_composition_id.to_dict(orient='index')
+    for i in song_dict:
+        songwriter_corpus_dict[song_dict[i]['WID']].add(song_dict[i]['CID'])
+    return songwriter_corpus_dict
+
+
 
 
 
