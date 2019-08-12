@@ -71,7 +71,7 @@ def mk_song_feats_df(song_features_json_fp):
                                                     'type',
                                                     ])
     clean_song_features_df = clean_song_features_ddf.compute()
-    clean_song_features_df.to_csv('../data/interim/song_features_{}.csv'.format(date.today().strftime("%Y%m%d")))
+    clean_song_features_df.to_csv('../data/interim/song_features/song_features_{}.csv'.format(date.today().strftime("%Y%m%d")))
 
     return
 

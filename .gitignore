@@ -1,7 +1,13 @@
-# reg stuff
+# dot files + folders + pycache
 .ipynb_checkpoints
 __pycache__*
 .env
+.jupyter
+.vscode
+.ipython
+.local
+.cache
+.config
 
 # data files
 genius_song_ids.json
