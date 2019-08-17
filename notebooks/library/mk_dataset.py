@@ -26,21 +26,21 @@ def _find_latest_file(path):
     """
     # glob hint https://stackoverflow.com/a/39327156
     list_of_files = glob.glob(path)
-    latest_file = max(list_of_files)
+    latest_file = max(list_of_files, key=os.path.getctime)
     return latest_file
 
 
 def combine_data(
-    songwriter_df_path=paths.get('songwriter_df_path'), 
-    genre_song_lookup_df_path=paths.get('gs_lookup_path'), 
-    pitch_timbre_df_path=paths.get('segment_path'), 
-    song_features_path=paths.get('song_features_path')
+    songwriter_df_path=paths['songwriter_df_path'], 
+    genre_song_dummies_df_path=paths['gs_dummies_path'], 
+    pitch_timbre_df_path=paths['segment_path'], 
+    song_features_path=paths['song_features_path']
     ):
     """Creates dask dataframe of songs with features ready for modeling"""
     
     list_of_paths = [
         songwriter_df_path,
-        genre_song_lookup_df_path,
+        genre_song_dummies_df_path,
         pitch_timbre_df_path,
         song_features_path,
     ]
@@ -51,18 +51,18 @@ def combine_data(
                                 dtype = {'IPI': np.float64})\
                         .rename(columns = {'Unnamed: 0' : 'index'})\
                         .set_index('index')
-    genre_song_lookup_df = dd.read_csv(latest_file_list[1])\
+    genre_song_dummies_df = dd.read_csv(latest_file_list[1])\
                             .rename(columns = {'Unnamed: 0' : 'index'})\
                             .set_index('index')
-    pitch_timbre_df = dd.read_csv(latest_file_list[2])\
-                        .rename(columns = {'Unnamed: 0' : 'index'})\
+    pitch_timbre_df = dd.read_csv(latest_file_list[2], index_col=False)\
+                        .rename(columns = {'Unnamed: 0' : 'track_id'})\
                         .set_index('index')
     song_features_df = dd.read_csv(latest_file_list[3])\
                         .rename(columns = {'Unnamed: 0' : 'index'})\
                         .set_index('index')
 
     songwriter_and_genres = dd.merge(songwriter_df, 
-                                genre_song_lookup_df,
+                                genre_song_dummies_df,
                                 on = 'track_id' )
     songwriter_genres_and_pt = dd.merge(songwriter_and_genres,
                                         pitch_timbre_df,
@@ -154,14 +154,14 @@ def scale_dataset(df):
 
 
 def mk_dataset(songwriter_df_path=paths.get('songwriter_df_path'), 
-               genre_song_lookup_df_path=paths.get('gs_lookup_path'), 
+               genre_song_dummies_df_path=paths.get('gs_dummies_path'), 
                pitch_timbre_df_path=paths.get('segment_path'), 
                song_features_path=paths.get('song_features_path'),
                normalize_by='meanstd',):
     """Wrapper function which creates dataset ready for modeling"""
     
     ddf = combine_data(songwriter_df_path,
-                       genre_song_lookup_df_path,
+                       genre_song_dummies_df_path,
                        pitch_timbre_df_path,
                        song_features_path)
     
