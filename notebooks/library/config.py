@@ -2,7 +2,7 @@
 # Paths for final dataset creation
 paths = {
     "songwriter_df_path" : "data/interim/tracks_w_writers/*",
-    "gs_dummies_path" : "data/interim/genres/*",
+    "compressed_genre_path" : "data/interim/genres/compressed_genres/*",
     "segment_path" : "data/interim/analysis_segments/*",
     "song_features_path" : "data/interim/song_features/*",
         }

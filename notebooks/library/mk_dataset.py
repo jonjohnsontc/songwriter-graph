@@ -4,8 +4,6 @@ import glob
 import os
 from collections import defaultdict
 
-# Not sure why I'm importing dask
-# import dask
 from dask import dataframe as dd
 from dask.distributed import Client
 from dask_ml.preprocessing import DummyEncoder, StandardScaler
@@ -20,8 +18,7 @@ from config import paths, non_normalized_cols
 # client = Client('scheduler:8786')
 
 def _find_latest_file(path):
-    """
-    Finds the latest file in a path, based off of a glob string passed
+    """Finds the latest file in a path, based off of a glob string passed
     in 'path'
     """
     # glob hint https://stackoverflow.com/a/39327156
@@ -32,7 +29,7 @@ def _find_latest_file(path):
 
 def combine_data(
     songwriter_df_path=paths['songwriter_df_path'], 
-    genre_song_dummies_df_path=paths['gs_dummies_path'], 
+    compressed_genre_path=paths['compressed_genre_path'], 
     pitch_timbre_df_path=paths['segment_path'], 
     song_features_path=paths['song_features_path']
     ):
@@ -40,7 +37,7 @@ def combine_data(
     
     list_of_paths = [
         songwriter_df_path,
-        genre_song_dummies_df_path,
+        compressed_genre_path,
         pitch_timbre_df_path,
         song_features_path,
     ]
@@ -51,18 +48,17 @@ def combine_data(
                                 dtype = {'IPI': np.float64})\
                         .rename(columns = {'Unnamed: 0' : 'index'})\
                         .set_index('index')
-    genre_song_dummies_df = dd.read_csv(latest_file_list[1])\
+    compressed_genre_df = dd.read_csv(latest_file_list[1])\
                             .rename(columns = {'Unnamed: 0' : 'index'})\
                             .set_index('index')
-    pitch_timbre_df = dd.read_csv(latest_file_list[2], index_col=False)\
-                        .rename(columns = {'Unnamed: 0' : 'track_id'})\
-                        .set_index('index')
+    pitch_timbre_df = dd.read_csv(latest_file_list[2])\
+                        .rename(columns = {'Unnamed: 0' : 'track_id'})
     song_features_df = dd.read_csv(latest_file_list[3])\
                         .rename(columns = {'Unnamed: 0' : 'index'})\
                         .set_index('index')
 
     songwriter_and_genres = dd.merge(songwriter_df, 
-                                genre_song_dummies_df,
+                                compressed_genre_df,
                                 on = 'track_id' )
     songwriter_genres_and_pt = dd.merge(songwriter_and_genres,
                                         pitch_timbre_df,
@@ -96,13 +92,13 @@ def mk_genre_dummies(genre_song_lookup_df):
     genre_dummies_dd = de.fit_transform(genre_song_lookup_dd)
     return genre_dummies_dd
 
-
-def rm_non_modeling_feats(ddf, cols_to_drop=non_normalized_cols):
-    """Removes features not usable for modeling prior to normalizing
-    each songwriter by their avg value
-    """
-    modeling_feats_only_ddf = ddf.drop(columns=cols_to_drop)
-    return modeling_feats_only_ddf, holdover_cols
+#TODO: Can probably delete
+# def rm_non_modeling_feats(ddf, cols_to_drop=non_normalized_cols):
+#     """Removes features not usable for modeling prior to normalizing
+#     each songwriter by their avg value
+#     """
+#     modeling_feats_only_ddf = ddf.drop(columns=cols_to_drop)
+#     return modeling_feats_only_ddf, holdover_cols
 
 
 def mk_avg_sngwrtr_value(ddf):
@@ -116,9 +112,33 @@ def mk_avg_sngwrtr_value(ddf):
 
 def normalize_sngwriter(ddf, how='meanstd'):
     """Normalizes ddf by expression specified in `how`"""
-    grouped_vals_ddf = ddf.groupby('WID').transform(lambda x: (x - x.mean()) /\
-                                                 x.std() if x.std() is not\
-                                                  0 else 0)
+    
+    subset_ddf = ddf.drop(labels = ['track_id',
+                          'Song Title',
+                          'Artist',
+                          'artist_id',
+                          'name',
+                          'popularity',
+                          'followers',
+                          'artist_name',
+                          'song_id',
+                          'song_title',
+                          'CID',
+                          'PID',
+                          'Title',
+                          'Performer Name',
+                          'Writer Name',
+                          'IPI',
+                          'PRO'],
+                          axis=1)
+
+    if how == 'meanstd':
+        grouped_vals_ddf = subset_ddf.groupby('WID')\
+                             .transform(lambda x: ((x - x.mean()) /\
+                                            x.std() if x.std()\
+                                            is not 0 else 0))
+    # elif how == ''
+    
     return grouped_vals_ddf
 
 
@@ -154,23 +174,44 @@ def scale_dataset(df):
 
 
 def mk_dataset(songwriter_df_path=paths.get('songwriter_df_path'), 
-               genre_song_dummies_df_path=paths.get('gs_dummies_path'), 
+               genre_song_dummies_df_path=paths.get('compressed_genre_path'), 
                pitch_timbre_df_path=paths.get('segment_path'), 
                song_features_path=paths.get('song_features_path'),
                normalize_by='meanstd',):
     """Wrapper function which creates dataset ready for modeling"""
-    
+    print('Combining datasets')
     ddf = combine_data(songwriter_df_path,
                        genre_song_dummies_df_path,
                        pitch_timbre_df_path,
                        song_features_path)
     
     # Seems inefficient
-    holdover_cols = ddf[[non_normalized_cols]].compute()
-    normalized_df = normalize_sngwriter(ddf, how=normalize_by).compute()
+    # print('Taking out holdover columns')
+    # holdover_cols = ddf[non_normalized_cols].compute()
     
-    combined_df = pd.concat([holdover_cols, normalized_df], axis=1)
-    return combined_df
+    print('Normalizing values per songwriter')
+    normalized_df = normalize_sngwriter(ddf).compute()
+    
+    print('Combining final datasets')
+    full_normalized_df = pd.concat([ddf[['track_id',
+                          'Song Title',
+                          'Artist',
+                          'artist_id',
+                          'name',
+                          'popularity',
+                          'followers',
+                          'artist_name',
+                          'song_id',
+                          'song_title',
+                          'CID',
+                          'PID',
+                          'Title',
+                          'Performer Name',
+                          'Writer Name',
+                          'IPI',
+                          'PRO']].compute(), normalized_df],
+                         axis = 1)
+    return full_normalized_df
 
 
 if __name__ == "__main__":
