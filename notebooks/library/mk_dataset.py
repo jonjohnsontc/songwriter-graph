@@ -1,3 +1,5 @@
+#NOTE: Built using dask, however, the normalization of 
+
 import argparse
 from datetime import date
 import glob
@@ -7,10 +9,11 @@ from collections import defaultdict
 from dask import dataframe as dd
 from dask.distributed import Client
 from dask_ml.preprocessing import DummyEncoder, StandardScaler
+
 import pandas as pd 
 import numpy as np
 
-from config import paths, non_normalized_cols
+from library.config import paths, non_normalized_cols
 
 # from numba import jit
 
@@ -110,10 +113,10 @@ def mk_avg_sngwrtr_value(ddf):
     return grouped_vals_ddf
 
 
-def normalize_sngwriter(ddf, how='meanstd'):
+def normalize_sngwriter(df, how='meanstd'):
     """Normalizes ddf by expression specified in `how`"""
     
-    subset_ddf = ddf.drop(labels = ['track_id',
+    subset_df = df.drop(labels = ['track_id',
                           'Song Title',
                           'Artist',
                           'artist_id',
@@ -133,11 +136,10 @@ def normalize_sngwriter(ddf, how='meanstd'):
                           axis=1)
 
     if how == 'meanstd':
-        grouped_vals_ddf = subset_ddf.groupby('WID')\
+        grouped_vals_ddf = subset_df.groupby('WID')\
                              .transform(lambda x: ((x - x.mean()) /\
                                             x.std() if x.std()\
                                             is not 0 else 0))
-    # elif how == ''
     
     return grouped_vals_ddf
 
@@ -185,15 +187,14 @@ def mk_dataset(songwriter_df_path=paths.get('songwriter_df_path'),
                        pitch_timbre_df_path,
                        song_features_path)
     
-    # Seems inefficient
-    # print('Taking out holdover columns')
-    # holdover_cols = ddf[non_normalized_cols].compute()
+    print('Computing dataset')
+    df = ddf.compute()
     
     print('Normalizing values per songwriter')
-    normalized_df = normalize_sngwriter(ddf).compute()
+    normalized_df = normalize_sngwriter(df)
     
     print('Combining final datasets')
-    full_normalized_df = pd.concat([ddf[['track_id',
+    full_normalized_df = pd.concat([df[['track_id',
                           'Song Title',
                           'Artist',
                           'artist_id',
@@ -209,7 +210,7 @@ def mk_dataset(songwriter_df_path=paths.get('songwriter_df_path'),
                           'Performer Name',
                           'Writer Name',
                           'IPI',
-                          'PRO']].compute(), normalized_df],
+                          'PRO']], normalized_df],
                          axis = 1)
     return full_normalized_df
 

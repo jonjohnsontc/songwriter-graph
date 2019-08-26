@@ -6,4 +6,5 @@ from dask.distributed import Client
 
 from sklearn.metrics import jaccard_score
 
-def get_jaccard()
+def get_jaccard():
+    pass
