@@ -9,4 +9,4 @@ s3fs
 selenium==3.141.0
 scikit_learn==0.21.3
 splinter==0.11.0
-spotipy==2.4.4
+spotipy

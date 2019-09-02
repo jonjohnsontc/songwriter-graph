@@ -14,20 +14,12 @@ import pandas as pd
 import numpy as np
 
 from library.config import paths, non_normalized_cols
+from library.utils import find_latest_file
 
 # from numba import jit
 
 # need to expose port 8786 in container
 # client = Client('scheduler:8786')
-
-def _find_latest_file(path):
-    """Finds the latest file in a path, based off of a glob string passed
-    in 'path'
-    """
-    # glob hint https://stackoverflow.com/a/39327156
-    list_of_files = glob.glob(path)
-    latest_file = max(list_of_files, key=os.path.getctime)
-    return latest_file
 
 
 def combine_data(
@@ -44,7 +36,7 @@ def combine_data(
         pitch_timbre_df_path,
         song_features_path,
     ]
-    latest_file_list = list(map(_find_latest_file, list_of_paths))
+    latest_file_list = list(map(find_latest_file, list_of_paths))
 
     songwriter_df = dd.read_csv(latest_file_list[0],
                     # should be pd.Int32Dtype() but running into error
