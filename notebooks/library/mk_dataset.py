@@ -1,4 +1,4 @@
-#NOTE: Built using dask, however, the normalization of 
+#NOTE: Built using dask, however, the normalization of values is done through pandas
 
 import argparse
 from datetime import date

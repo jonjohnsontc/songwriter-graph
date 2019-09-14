@@ -12,6 +12,7 @@ __pycache__*
 .conda
 .bash_history
 .gitconfig
+.pylint.d
 
 # data files
 genius_song_ids.json
@@ -28,6 +29,7 @@ pickle/ascap_credits.pkl
 # scrape logz
 geckodriver.log
 
-# misc
+# misc / scratch files
 query_api.ipynb
 notebooks/dask-worker-space/
+notebooks/Untitled.ipynb
