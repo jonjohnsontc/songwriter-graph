@@ -56,7 +56,7 @@ def create_model_df(labels, matrix, type_of_file):
                       being constructed.
 
     Returns:
-        "Finished" Message, after saving 
+        "Finished" Message, after saving the model to s3
     """
     ms = matrix.shape[0]
     df_matrix = pd.DataFrame(np.vstack(np.split(matrix, ms)))
