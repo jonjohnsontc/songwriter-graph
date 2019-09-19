@@ -12,8 +12,8 @@ import s3fs
 import joblib
 from sklearn.neighbors import NearestNeighbors
 
-from library.config import modeling_labels_path, modeling_path
-from library.utils import find_latest_file, find_latest_file_s3, load_dd, load_df
+from config import modeling_labels_path, modeling_path
+from utils import find_latest_file, find_latest_file_s3, load_dd, load_df
 
 TIME_AT_RUN = datetime.utcnow()
 
@@ -34,9 +34,9 @@ def get_euclidean(modeling_ready_ddf):
     print("Saving Neighbors to s3")
     # https://stackoverflow.com/a/44818887
     fs = s3fs.S3FileSystem()
-    with fs.open(f's3://swg_bucket/processed/distances/distances_{TIME_AT_RUN}.pkl', 'wb') as f:
+    with fs.open(f's3://swg-bucket/processed/distances/distances_{TIME_AT_RUN}.pkl', 'wb') as f:
         pkl.dump(distances, f)
-    with fs.open(f's3://swg_bucket/processed/indices/indices_{TIME_AT_RUN}.pkl', 'wb') as f:
+    with fs.open(f's3://swg-bucket/processed/indices/indices_{TIME_AT_RUN}.pkl', 'wb') as f:
         pkl.dump(indices, f)
     
     print("Finished")
@@ -81,5 +81,5 @@ def parse_args():
 
 if __name__ == "__main__":
     args = parse_args()
-    ddf = load_dd(find_latest_file_s3(args['path']))
+    ddf = load_dd(args['path'])
     dist, indices = get_euclidean(ddf)
