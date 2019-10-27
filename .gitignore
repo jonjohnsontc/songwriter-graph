@@ -13,6 +13,8 @@ __pycache__*
 .bash_history
 .gitconfig
 .pylint.d
+.aws
+*.swp
 
 # data files
 genius_song_ids.json

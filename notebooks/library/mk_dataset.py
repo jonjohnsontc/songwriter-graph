@@ -87,13 +87,12 @@ def mk_genre_dummies(genre_song_lookup_df):
     genre_dummies_dd = de.fit_transform(genre_song_lookup_dd)
     return genre_dummies_dd
 
-#TODO: Can probably delete
-# def rm_non_modeling_feats(ddf, cols_to_drop=non_normalized_cols):
-#     """Removes features not usable for modeling prior to normalizing
-#     each songwriter by their avg value
-#     """
-#     modeling_feats_only_ddf = ddf.drop(columns=cols_to_drop)
-#     return modeling_feats_only_ddf, holdover_cols
+
+# Replicate sklearn-less version of RobustScale
+def robust_scale(array):
+    center = np.nanmedian(array)
+    quantiles = []
+    quantiles.append(np.nanpercentile())
 
 
 def mk_avg_sngwrtr_value(ddf):

@@ -11,8 +11,7 @@ paths = {
     "compressed_genre_path" : "data/interim/genres/compressed_genres/*",
     "segment_path" : "data/interim/analysis_segments/*",
     "song_features_path" : "data/interim/song_features/*",
-   
-        }
+      }
 
 
 non_normalized_cols = [

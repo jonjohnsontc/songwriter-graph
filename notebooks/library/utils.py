@@ -14,7 +14,7 @@ def find_latest_file_s3(path):
         String path leading to the latest file in a directory
     """
     fs = s3fs.S3FileSystem()
-    list_of_files = fs.glob(path)
+    list_of_files =fs.glob(path)
     latest_file = max(list_of_files, key=os.path.getctime)
     return latest_file
 
