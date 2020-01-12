@@ -15,6 +15,7 @@ __pycache__*
 .pylint.d
 .aws
 *.swp
+.DS_Store
 
 # data files
 genius_song_ids.json

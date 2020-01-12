@@ -1,5 +1,5 @@
 awscli
-dask
+dask==2.2.0
 dask[dataframe]
 numpy
 boto3==1.9.215

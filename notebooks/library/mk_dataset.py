@@ -21,7 +21,6 @@ from library.utils import find_latest_file
 # need to expose port 8786 in container
 # client = Client('scheduler:8786')
 
-
 def combine_data(
     songwriter_df_path=paths['songwriter_df_path'], 
     compressed_genre_path=paths['compressed_genre_path'], 
