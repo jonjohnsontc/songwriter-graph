@@ -16,6 +16,7 @@ __pycache__*
 .aws
 *.swp
 .DS_Store
+.python_history
 
 # data files
 genius_song_ids.json
