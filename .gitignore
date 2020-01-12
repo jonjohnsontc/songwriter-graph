@@ -34,6 +34,4 @@ geckodriver.log
 
 # misc / scratch files
 query_api.ipynb
-notebooks/dask-worker-space/
-notebooks/Untitled.ipynb
-notebooks/scratch
+notebooks
