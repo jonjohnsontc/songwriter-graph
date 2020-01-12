@@ -56,11 +56,22 @@ def load_df(path):
     return df
 
 
-def save_object(object: list, object_type: str):
+def get_files(path: str) -> list:
+    filepaths = DATA.joinpath(path).glob("*.json")
+    return filepaths
+
+
+def save_object(object_list: list, object_type: str):
     """Saves list object as csv"""
-    objects = pd.concat(object)
+    object_map = {
+        "sec_mean_vars": Path("interim", "sections", "means_vars"),
+        "pt_mean_vars": Path("interim", "pitch_timbre", "means_vars"),
+        "pt_pcas": Path("interim", "pitch_timbre", "pca")
+    }
+    objects = pd.concat(object_list)
     dt = datetime.now().strftime("%d%m%Y_%H%M%S")
-    objects.to_csv(f"{DATA}MORE_STUFF_HERE_{dt}.csv")
+    path = DATA.joinpath(object_map[object_type])
+    objects.to_csv(path.joinpath(f"{object_type}_{dt}.csv"))
     return
 
 
