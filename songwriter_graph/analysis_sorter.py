@@ -177,11 +177,12 @@ def analysis_sorter(lst: list, fp: str):
         "pt_pcas":pt_pcas,
         "key_changes":key_changes})
 
-    save_objects({
-        sec_mean_vars:"sec_mean_vars",
-        pt_mean_vars:"pt_mean_vars",
-        pt_pcas:"pt_pcas",
-        key_changes:"key_changes"})
+    save_objects([
+        {"object": sec_mean_vars, "object_type":"sec_mean_vars"},
+        {"object": pt_mean_vars, "object_type": "pt_mean_vars"},
+        {"object":pt_pcas, "object_type":"pt_pcas"},
+        {"object":key_changes, "object_type":"key_changes"}])
+
     return
 
 

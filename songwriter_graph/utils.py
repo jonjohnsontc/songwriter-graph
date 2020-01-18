@@ -88,6 +88,6 @@ def save_objects(objects: dict):
     """Takes a dictionary containing key/value paris of object listings 
     and object_types and saves each via `save_object`
     """
-    for object in objects:
-        save_object(object["object"], object["object_type"])
+    for item in objects:
+        save_object(item["object"], item["object_type"])
     return
