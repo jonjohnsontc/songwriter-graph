@@ -13,8 +13,8 @@ from dask_ml.preprocessing import DummyEncoder, StandardScaler
 import pandas as pd 
 import numpy as np
 
-from library.config import paths, non_normalized_cols
-from library.utils import find_latest_file
+from songwriter_graph.config import paths, non_normalized_cols
+from songwriter_graph.utils import find_latest_file
 
 # from numba import jit
 

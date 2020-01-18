@@ -33,6 +33,19 @@ def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.Dat
     pt_pca["song_id"] = song_id
     return pt_pca
 
+
+def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
+    song_secs = song_sections.to_dict()
+    start_key = song_secs['sections'][0]['key']
+    kc = 0
+    for item in song_secs['sections']:
+        cur_key = item['key']
+        if cur_key != start_key:
+            start_key = cur_key
+            kc += 1
+    return {"song_id":song_id, "key_changes": kc}
+
+
 # https://stackoverflow.com/a/13224592
 def PCA(data, dims_rescaled_data=2):
     """
@@ -119,6 +132,7 @@ def length_check(analysis_objs: dict):
 def analysis_sorter(lst: list, fp: str) -> dict:
     '''Write me pls.
     '''
+    key_changes = []
     sec_mean_vars = []
     pt_mean_vars = []
     pt_pcas = []
@@ -147,6 +161,10 @@ def analysis_sorter(lst: list, fp: str) -> dict:
         sec_mean_var = get_mean_var(for_analysis["song_sections"], song_id)
         sec_mean_vars.append(sec_mean_var)
 
+        # grabbing key changes
+        no_of_key_changes = get_key_changes(for_analysis["song_sections"], song_id)
+        key_changes.append(no_of_key_changes)
+
         # pitch and timbre values
         pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"], song_id)
         pt_mean_vars.append(pt_vals)
@@ -155,7 +173,7 @@ def analysis_sorter(lst: list, fp: str) -> dict:
         pt_pcas.append(pt_pca)
 
         # saving objects
-        length_check([sec_mean_vars, pt_mean_vars, pt_pcas])
+        length_check([sec_mean_vars, pt_mean_vars, pt_pcas, key_changes])
 
     save_objects({
         sec_mean_vars:"sec_mean_vars",

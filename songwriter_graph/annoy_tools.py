@@ -5,7 +5,7 @@ from annoy import AnnoyIndex
 import pandas as pd
 import numpy as np
 
-from utils import drop_non_numeric_feats, load_df
+from songwriter_graph.utils import drop_non_numeric_feats, load_df
 
 TIME_AT_RUN = datetime.now().strftime("%m%d%Y")
 

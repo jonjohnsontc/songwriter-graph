@@ -11,6 +11,7 @@ import pandas as pd
 from songwriter_graph.config import feature_cols
 
 DATA = Path.home().joinpath("SWI_data", "data")
+INTERIM_DATA = DATA.joinpath("interim")
 
 def find_latest_file_s3(path):
     """Finds the latest file in an s3 path, based off of a glob string
@@ -70,7 +71,7 @@ def save_object(object_list: list, object_type: str):
     }
     objects = pd.concat(object_list)
     dt = datetime.now().strftime("%d%m%Y_%H%M%S")
-    path = DATA.joinpath(object_map[object_type])
+    path = INTERIM_DATA.joinpath(object_map[object_type])
     objects.to_csv(path.joinpath(f"{object_type}_{dt}.csv"))
     return
 
