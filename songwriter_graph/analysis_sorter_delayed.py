@@ -8,7 +8,7 @@ import numpy as np
 import dask
 
 from tqdm.auto import tqdm
-from songwriter_graph.utils import get_files, save_object, save_objects
+from songwriter_graph.utils import get_files, save_object, save_objects, load_json
 
 #TODO: Config
 logging.basicConfig()
@@ -23,7 +23,8 @@ def get_mean_var(song_object: pd.core.frame.DataFrame, song_id: str) -> pd.core.
     mean_var = song_object.agg([np.mean, np.var])
     mean_var["song_id"] = song_id
     return mean_var
-    
+
+
 @dask.delayed
 def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
     '''Performs PCA on Pitch and Timbre values in a single song segment
@@ -33,6 +34,7 @@ def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.Dat
         columns=[f"component_{i}" for i in range(1,11)])
     pt_pca["song_id"] = song_id
     return pt_pca
+
 
 @dask.delayed
 def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
@@ -73,6 +75,7 @@ def PCA(data, dims_rescaled_data=2):
     # and return the re-scaled data, eigenvalues, and eigenvectors
     return np.dot(evecs.T, data.T).T
 
+
 @dask.delayed
 def validate_analysis_obj(analysis_obj: dict):
     """Validates that analysis object passed through can be correctly
@@ -88,6 +91,7 @@ def validate_analysis_obj(analysis_obj: dict):
         raise ValueError("Analysis object not valid")
     
     return
+
 
 @dask.delayed
 def get_song_objects(analysis_obj: dict) -> dict:
@@ -135,20 +139,10 @@ def analysis_sorter_delayed(lst: list, fp: str):
     pt_mean_vars = []
     pt_pcas = []
 
-    #TODO: Replacex with logging
-    exceptions_dicts = []
-
     for record in tqdm(lst):
         song_id = record.replace('.json', '')
-        try:
-            with open(f'{fp}/{record}', 'r') as f:
-                song = json.load(f)
-        except Exception as e:
-            exceptions_dicts.append({
-                "song_id":song_id,
-                "error":str(e)})
-            continue
-        
+        song = load_json(record)
+
         # validate json
         validate_analysis_obj(song)
 
@@ -170,8 +164,10 @@ def analysis_sorter_delayed(lst: list, fp: str):
         pt_pca = get_pt_pca(for_analysis["combined_pitch_timbre"], song_id)
         pt_pcas.append(pt_pca)
 
-        # saving objects
-        length_check([sec_mean_vars, pt_mean_vars, pt_pcas, key_changes])
+    key_changes = dask.compute(*key_changes)
+    sec_mean_vars = dask.compute(*sec_mean_vars)
+    pt_mean_vars = dask.compute(*pt_mean_vars)
+    pt_pcas = dask.compute(*pt_pcas)
 
     save_objects({
         sec_mean_vars:"sec_mean_vars",

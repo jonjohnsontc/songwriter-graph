@@ -1,11 +1,13 @@
 import glob
 import os
-from pathlib import Path
+from pathlib import Path, PurePath
 from datetime import datetime
+import json
 
 import s3fs
 
-from dask import dataframe as dd
+import dask
+import dask.dataframe as dd
 import pandas as pd
 
 from songwriter_graph.config import feature_cols
@@ -54,6 +56,12 @@ def load_dd(path):
 def load_df(path):
     df = pd.read_csv(path, index_col=0)
     return df
+
+@dask.delayed
+def load_json(path: PurePath) -> dict:
+    with path.open() as f:
+        obj = json.load(f)
+    return obj
 
 
 def get_files(path: str) -> list:
