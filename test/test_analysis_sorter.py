@@ -23,3 +23,14 @@ def test_get_pt_pca_produces_accurate_pca():
 def test_PCA_result_can_map_back_to_original_data():
     pass
 
+
+def get_key_changes_produces_accurate_no():
+    pass
+
+
+def validate_analysis_obj_properly_throws_exception():
+    pass
+
+
+def length_check_properly_clears_analysis_obj_dict():
+    pass

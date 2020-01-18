@@ -5,6 +5,7 @@ from datetime import date
 
 import pandas as pd
 import numpy as np
+import dask
 
 from tqdm.auto import tqdm
 from songwriter_graph.utils import get_files, save_object, save_objects
@@ -12,7 +13,9 @@ from songwriter_graph.utils import get_files, save_object, save_objects
 #TODO: Config
 logging.basicConfig()
 
+dask.config.set(scheduler='threads')
 
+@dask.delayed
 def get_mean_var(song_object: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
     """Computes the mean and variance of an analysis json object passed
     through
@@ -21,7 +24,7 @@ def get_mean_var(song_object: pd.core.frame.DataFrame, song_id: str) -> pd.core.
     mean_var["song_id"] = song_id
     return mean_var
     
-
+@dask.delayed
 def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
     '''Performs PCA on Pitch and Timbre values in a single song segment
     '''
@@ -31,7 +34,7 @@ def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.Dat
     pt_pca["song_id"] = song_id
     return pt_pca
 
-
+@dask.delayed
 def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
     song_secs = song_sections.to_dict()
     start_key = song_secs['sections'][0]['key']
@@ -70,7 +73,7 @@ def PCA(data, dims_rescaled_data=2):
     # and return the re-scaled data, eigenvalues, and eigenvectors
     return np.dot(evecs.T, data.T).T
 
-
+@dask.delayed
 def validate_analysis_obj(analysis_obj: dict):
     """Validates that analysis object passed through can be correctly
     parsed.
@@ -86,7 +89,7 @@ def validate_analysis_obj(analysis_obj: dict):
     
     return
 
-
+@dask.delayed
 def get_song_objects(analysis_obj: dict) -> dict:
     """Retrieves objects necessary to compute analysis for"""
    
@@ -112,6 +115,7 @@ def get_song_objects(analysis_obj: dict) -> dict:
 
 
 # Unit test this actually clears the list within the dictionary
+@dask.delayed
 def length_check(analysis_objs: dict):
     """Checks the size of analysis objects to determine if they're large
     enough to save and clear
@@ -122,12 +126,8 @@ def length_check(analysis_objs: dict):
             analysis_objs[key].clear()
     return    
 
-# Couple of thoughts currently:
-# I should create a version with a for loop running against a list of files
-# - A version using dask as a scheduler (with threading)
-# - A version using dask as a schedule (with multiprocessing)
 
-def analysis_sorter(lst: list, fp: str):
+def analysis_sorter_delayed(lst: list, fp: str):
     '''Write me pls.
     '''
     key_changes = []
@@ -179,7 +179,6 @@ def analysis_sorter(lst: list, fp: str):
         pt_pcas:"pt_pcas",
         key_changes:"key_changes"})
     return
-
 
 
 if __name__ == "__main__":
