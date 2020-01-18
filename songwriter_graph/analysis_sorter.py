@@ -33,7 +33,7 @@ def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.Dat
 
 
 def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
-    song_secs = song_sections.to_dict(orient=list)
+    song_secs = song_sections.to_dict(orient="list")
     start_key = song_secs['key'][0]
     kc = 0 
     for item in song_secs['key']:
@@ -171,7 +171,11 @@ def analysis_sorter(lst: list, fp: str):
         pt_pcas.append(pt_pca)
 
         # saving objects
-        length_check([sec_mean_vars, pt_mean_vars, pt_pcas, key_changes])
+        length_check({
+        "sec_mean_vars":sec_mean_vars,
+        "pt_mean_vars":pt_mean_vars,
+        "pt_pcas":pt_pcas,
+        "key_changes":key_changes})
 
     save_objects({
         sec_mean_vars:"sec_mean_vars",
@@ -179,7 +183,6 @@ def analysis_sorter(lst: list, fp: str):
         pt_pcas:"pt_pcas",
         key_changes:"key_changes"})
     return
-
 
 
 if __name__ == "__main__":

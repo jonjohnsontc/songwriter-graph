@@ -34,3 +34,7 @@ def validate_analysis_obj_properly_throws_exception():
 
 def length_check_properly_clears_analysis_obj_dict():
     pass
+
+
+def length_check_properly_checks_object_lenghts():
+    pass
