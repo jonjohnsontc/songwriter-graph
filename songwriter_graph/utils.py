@@ -8,7 +8,7 @@ import s3fs
 from dask import dataframe as dd
 import pandas as pd
 
-from library.config import feature_cols
+from songwriter_graph.config import feature_cols
 
 DATA = Path.home().joinpath("SWI_data", "data")
 

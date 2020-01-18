@@ -10,7 +10,7 @@ import dask
 import dask.bag as db
 
 from tqdm.auto import tqdm
-from library.utils import get_files, save_object, save_objects
+from songwriter_graph.utils import get_files, save_object, save_objects
 
 #TODO: Config
 logging.basicConfig()
@@ -111,6 +111,10 @@ def length_check(analysis_objs: dict):
             analysis_objs[key].clear()
     return    
 
+# Couple of thoughts currently:
+# I should create a version with a for loop running against a list of files
+# - A version using dask as a scheduler (with threading)
+# - A version using dask as a schedule (with multiprocessing)
 
 def analysis_sorter(lst: list, fp: str) -> dict:
     '''Write me pls.
@@ -160,6 +164,4 @@ def analysis_sorter(lst: list, fp: str) -> dict:
     return 
 
 if __name__ == "__main__":
-    
-    files = db.from_sequence()
-    files.map(analysis_sorter)
+    pass
