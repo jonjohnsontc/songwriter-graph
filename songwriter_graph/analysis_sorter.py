@@ -129,7 +129,7 @@ def length_check(analysis_objs: dict):
 # - A version using dask as a scheduler (with threading)
 # - A version using dask as a schedule (with multiprocessing)
 
-def analysis_sorter(lst: list, fp: str) -> dict:
+def analysis_sorter(lst: list, fp: str):
     '''Write me pls.
     '''
     key_changes = []
@@ -137,7 +137,7 @@ def analysis_sorter(lst: list, fp: str) -> dict:
     pt_mean_vars = []
     pt_pcas = []
 
-    #TODO: Replace with logging
+    #TODO: Replacex with logging
     exceptions_dicts = []
 
     for record in tqdm(lst):
@@ -178,8 +178,68 @@ def analysis_sorter(lst: list, fp: str) -> dict:
     save_objects({
         sec_mean_vars:"sec_mean_vars",
         pt_mean_vars:"pt_mean_vars",
-        pt_pcas:"pt_pcas"})
-    return 
+        pt_pcas:"pt_pcas",
+        key_changes:"key_changes"})
+    return
+
+
+def analysis_sorter_dask(lst: list, fp: str):
+    '''Write me pls.
+    '''
+    dask.config.set(scheduler='threads')
+    
+    key_changes = []
+    sec_mean_vars = []
+    pt_mean_vars = []
+    pt_pcas = []
+
+    #TODO: Replacex with logging
+    exceptions_dicts = []
+
+    #TODO: Replace meeeee
+    for record in tqdm(lst):
+        song_id = record.replace('.json', '')
+        try:
+            with open(f'{fp}/{record}', 'r') as f:
+                song = json.load(f)
+        except Exception as e:
+            exceptions_dicts.append({
+                "song_id":song_id,
+                "error":str(e)})
+            continue
+        
+        # validate json
+        validate_analysis_obj(song)
+
+        # retrieve objects for analysis
+        for_analysis = get_song_objects(song)
+
+        # Obtaining section mean & variance 
+        sec_mean_var = get_mean_var(for_analysis["song_sections"], song_id)
+        sec_mean_vars.append(sec_mean_var)
+
+        # grabbing key changes
+        no_of_key_changes = get_key_changes(for_analysis["song_sections"], song_id)
+        key_changes.append(no_of_key_changes)
+
+        # pitch and timbre values
+        pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"], song_id)
+        pt_mean_vars.append(pt_vals)
+
+        pt_pca = get_pt_pca(for_analysis["combined_pitch_timbre"], song_id)
+        pt_pcas.append(pt_pca)
+
+        # saving objects
+        length_check([sec_mean_vars, pt_mean_vars, pt_pcas, key_changes])
+
+    save_objects({
+        sec_mean_vars:"sec_mean_vars",
+        pt_mean_vars:"pt_mean_vars",
+        pt_pcas:"pt_pcas",
+        key_changes:"key_changes"})
+    return
+
+
 
 if __name__ == "__main__":
     pass

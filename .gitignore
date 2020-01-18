@@ -38,3 +38,8 @@ query_api.ipynb
 notebooks/dask-worker-space/
 notebooks/Untitled.ipynb
 notebooks/scratch
+
+# the liberry
+build/
+dist/
+songwriter_graph.egg-info
