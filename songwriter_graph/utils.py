@@ -84,7 +84,7 @@ def save_object(object_list: list, object_type: str):
     return
 
 
-def save_objects(objects: dict):
+def save_objects(objects: list):
     """Takes a dictionary containing key/value paris of object listings 
     and object_types and saves each via `save_object`
     """

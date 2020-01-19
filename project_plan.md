@@ -19,6 +19,6 @@
 - Launch website
 
 ## Step-by-Step Plan
-- 1/18 - 1/19: Test performance of analysis sorter
-- Add unit tests for analysis sorter
+- 1/18 - 1/25: Test performance of analysis sorter / Create unit tests for analysis sorter elements
+- 1/26 - 2/1: Build database for the pre-processed data + Create ANN model
 - 

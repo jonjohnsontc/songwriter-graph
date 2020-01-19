@@ -1,6 +1,6 @@
 import json
-import os
 import logging
+from pathlib import Path
 from datetime import date
 
 import pandas as pd
@@ -140,8 +140,9 @@ def analysis_sorter_delayed(lst: list, fp: str):
     pt_pcas = []
 
     for record in tqdm(lst):
+        path = Path(fp, record)
         song_id = record.replace('.json', '')
-        song = load_json(record)
+        song = load_json(path)
 
         # validate json
         validate_analysis_obj(song)
@@ -169,11 +170,11 @@ def analysis_sorter_delayed(lst: list, fp: str):
     pt_mean_vars = dask.compute(*pt_mean_vars)
     pt_pcas = dask.compute(*pt_pcas)
 
-    save_objects({
-        sec_mean_vars:"sec_mean_vars",
-        pt_mean_vars:"pt_mean_vars",
-        pt_pcas:"pt_pcas",
-        key_changes:"key_changes"})
+    save_objects([
+        {"object": sec_mean_vars, "object_type":"sec_mean_vars"},
+        {"object": pt_mean_vars, "object_type": "pt_mean_vars"},
+        {"object":pt_pcas, "object_type":"pt_pcas"},
+        {"object":key_changes, "object_type":"key_changes"}])
     return
 
 

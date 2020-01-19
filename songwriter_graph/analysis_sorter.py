@@ -41,7 +41,7 @@ def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int
         if cur_key != start_key:
             start_key = cur_key
             kc += 1
-    return {"song_id":song_id, "key_changes": kc}
+    return pd.DataFrame.from_dict([{"song_id":song_id, "key_changes": kc}])
 
 
 # https://stackoverflow.com/a/13224592
