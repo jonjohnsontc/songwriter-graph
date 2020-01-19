@@ -38,15 +38,15 @@ def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.Dat
 
 @dask.delayed
 def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
-    song_secs = song_sections.to_dict()
-    start_key = song_secs['sections'][0]['key']
-    kc = 0
-    for item in song_secs['sections']:
-        cur_key = item['key']
+    song_secs = song_sections.to_dict(orient="list")
+    start_key = song_secs['key'][0]
+    kc = 0 
+    for item in song_secs['key']:
+        cur_key = item
         if cur_key != start_key:
             start_key = cur_key
             kc += 1
-    return {"song_id":song_id, "key_changes": kc}
+    return pd.DataFrame.from_dict([{"song_id":song_id, "key_changes": kc}])
 
 
 # https://stackoverflow.com/a/13224592
