@@ -9,6 +9,7 @@ import s3fs
 import dask
 import dask.dataframe as dd
 import pandas as pd
+import numpy as np
 
 from songwriter_graph.config import feature_cols
 
@@ -68,7 +69,7 @@ def get_files(path: str) -> list:
     filepaths = DATA.joinpath(path).glob("*.json")
     return filepaths
 
-
+# More precise types here
 def save_object(object_list: list, object_type: str):
     """Saves list object as csv"""
     object_map = {
@@ -91,3 +92,31 @@ def save_objects(objects: list):
     for item in objects:
         save_object(item["object"], item["object_type"])
     return
+
+
+def save_object_np(object_list: list, object_type: str, song_ids: list):
+    """Saves list object as csv"""
+    object_map = {
+        "sec_mean_vars": Path("interim", "sections", "means_vars"),
+        "pt_mean_vars": Path("interim", "pitch_timbre", "means_vars"),
+        "pt_pcas": Path("interim", "pitch_timbre", "pca"),
+        "key_changes": Path("interim", "sections", "key_changes")
+    }
+    objects = _create_df(object_list, object_type, song_ids)
+    dt = datetime.now().strftime("%d%m%Y_%H%M%S")
+    path = DATA.joinpath(object_map[object_type])
+    objects.to_csv(path.joinpath(f"{object_type}_{dt}.csv"))
+    return
+
+
+def save_objects_np(objects: list):
+    for item in objects:
+        save_object_np(item["object"], item["object_type"], item['object_index'])
+    return
+
+def _create_df(array: np.ndarray, schema: list, song_ids: list) -> pd.core.frame.DataFrame:
+    """Creates dataframe from numpy array with a passed through
+    schema & index.
+    """
+    df = pd.DataFrame(array, columns=schema, index=song_ids)
+    return df

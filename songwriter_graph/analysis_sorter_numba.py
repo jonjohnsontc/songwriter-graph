@@ -1,52 +1,36 @@
 import json
+import os
 import logging
-from pathlib import Path, PurePath
 from datetime import date
 
 import pandas as pd
 import numpy as np
-import dask
+from numba import njit
 
 from tqdm.auto import tqdm
-from songwriter_graph.utils import get_files, save_object, save_objects, load_json
+from songwriter_graph.utils import get_files, save_object_np, save_objects_np
 
 #TODO: Config
 logging.basicConfig()
 
-dask.config.set(scheduler='threads')
 
-@dask.delayed
-def get_mean_var(song_object: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
+def get_mean_var(song_object: np.ndarray) -> np.ndarray:
     """Computes the mean and variance of an analysis json object passed
     through
     """
-    mean_var = song_object.agg([np.mean, np.var])
-    mean_var["song_id"] = song_id
-    return mean_var
+    mean = np.apply_along_axis(np.mean, 0, song_object)
+    var = np.apply_along_axis(np.var, 0, song_object)
+    return np.concatenate(mean, var)
 
 
-@dask.delayed
-def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
-    '''Performs PCA on Pitch and Timbre values in a single song segment
-    '''
-    pt_pca = pd.DataFrame(
-        PCA(song, dims_rescaled_data=10),
-        columns=[f"component_{i}" for i in range(1,11)])
-    pt_pca["song_id"] = song_id
-    return pt_pca
-
-
-@dask.delayed
-def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
-    song_secs = song_sections.to_dict(orient="list")
-    start_key = song_secs['key'][0]
-    kc = 0 
-    for item in song_secs['key']:
+def get_key_changes(song_keys: np.ndarray) -> int:
+    kc = 0
+    for item in np.nditer(song_keys):
         cur_key = item
         if cur_key != start_key:
             start_key = cur_key
             kc += 1
-    return pd.DataFrame.from_dict([{"song_id":song_id, "key_changes": kc}])
+    return kc
 
 
 # https://stackoverflow.com/a/13224592
@@ -76,7 +60,6 @@ def PCA(data, dims_rescaled_data=2):
     return np.dot(evecs.T, data.T).T
 
 
-@dask.delayed
 def validate_analysis_obj(analysis_obj: dict):
     """Validates that analysis object passed through can be correctly
     parsed.
@@ -93,7 +76,6 @@ def validate_analysis_obj(analysis_obj: dict):
     return
 
 
-@dask.delayed
 def get_song_objects(analysis_obj: dict) -> dict:
     """Retrieves objects necessary to compute analysis for"""
    
@@ -106,12 +88,13 @@ def get_song_objects(analysis_obj: dict) -> dict:
         pitches.append(i["pitches"])
         timbre.append(i["timbre"])
     
-    p = pd.DataFrame(pitches, columns=[f"p_{i}" for i in range(1, 13)])
-    t = pd.DataFrame(timbre, columns=[f"t_{i}" for i in range(1, 13)])
-    combined_pitch_timbre = pd.concat([p, t], axis = 1)
+    p = np.array(pitches)
+    t = np.array(timbre)
+    combined_pitch_timbre = np.concatenate([p, t])
     
     # Retrieve song segments
-    song_sections = pd.DataFrame.from_dict(analysis_obj['sections'])
+    song_sections = np.array(
+        [list(item.values()) for item in analysis_obj["sections"]])
 
     return {
         "combined_pitch_timbre": combined_pitch_timbre,
@@ -119,62 +102,87 @@ def get_song_objects(analysis_obj: dict) -> dict:
 
 
 # Unit test this actually clears the list within the dictionary
-@dask.delayed
-def length_check(analysis_objs: dict):
+def length_check(analysis_objs: dict, song_ids: list):
     """Checks the size of analysis objects to determine if they're large
     enough to save and clear
     """
     for key in analysis_objs.keys():
         if len(analysis_objs[key]) > 10000:
-            save_object(analysis_objs[key], key)
+            save_object_np(analysis_objs[key], key, song_ids)
             analysis_objs[key].clear()
     return    
 
 
-def analysis_sorter_delayed(lst: list, fp: PurePath):
+def analysis_sorter_numba(lst: list, fp: str):
     '''Write me pls.
     '''
+    song_ids = []
     key_changes = []
     sec_mean_vars = []
     pt_mean_vars = []
     pt_pcas = []
 
-    for record in lst:
-        path = fp.joinpath(record)
-        song_id = record.replace('.json', '')
-        song = load_json(path)
+    #TODO: Replacex with logging
+    exceptions_dicts = []
 
+    for record in tqdm(lst):
+        song_id = record.replace('.json', '')
+        try:
+            with open(f'{fp}/{record}', 'r') as f:
+                song = json.load(f)
+        except Exception as e:
+            exceptions_dicts.append({
+                "song_id":song_id,
+                "error":str(e)})
+            continue
+        
         # validate json
         validate_analysis_obj(song)
+
+        song_ids.append(song_id)
 
         # retrieve objects for analysis
         for_analysis = get_song_objects(song)
 
         # Obtaining section mean & variance 
-        sec_mean_var = get_mean_var(for_analysis["song_sections"], song_id)
+        sec_mean_var = get_mean_var(for_analysis["song_sections"])
         sec_mean_vars.append(sec_mean_var)
 
         # grabbing key changes
-        no_of_key_changes = get_key_changes(for_analysis["song_sections"], song_id)
+        no_of_key_changes = get_key_changes(for_analysis["song_sections"])
         key_changes.append(no_of_key_changes)
 
         # pitch and timbre values
-        pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"], song_id)
+        pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"])
         pt_mean_vars.append(pt_vals)
 
-        pt_pca = get_pt_pca(for_analysis["combined_pitch_timbre"], song_id)
+        pt_pca = PCA(
+            for_analysis["combined_pitch_timbre"],
+            dims_rescaled_data=10)
         pt_pcas.append(pt_pca)
 
-    key_changes = dask.compute(*key_changes)
-    sec_mean_vars = dask.compute(*sec_mean_vars)
-    pt_mean_vars = dask.compute(*pt_mean_vars)
-    pt_pcas = dask.compute(*pt_pcas)
+        # saving objects
+        length_check({
+        "sec_mean_vars":sec_mean_vars,
+        "pt_mean_vars":pt_mean_vars,
+        "pt_pcas":pt_pcas,
+        "key_changes":key_changes}, 
+        song_ids
+        )
+    
+    to_save = [
+        {"object":sec_mean_vars, "object_type":"sec_mean_vars",
+         "object_index":song_ids},
+        {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
+        "object_index":song_ids},
+        {"object":pt_pcas, "object_type":"pt_pcas",
+        "object_index":song_ids},
+        {"object":key_changes, "object_type":"key_changes", 
+        "object_index":song_ids}
+        ]
 
-    save_objects([
-        {"object": sec_mean_vars, "object_type":"sec_mean_vars"},
-        {"object": pt_mean_vars, "object_type": "pt_mean_vars"},
-        {"object":pt_pcas, "object_type":"pt_pcas"},
-        {"object":key_changes, "object_type":"key_changes"}])
+    save_objects_np(to_save)
+
     return
 
 
