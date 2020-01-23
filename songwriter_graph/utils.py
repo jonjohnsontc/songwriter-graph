@@ -94,7 +94,11 @@ def save_objects(objects: list):
     return
 
 
-def save_object_np(object_list: list, object_type: str, song_ids: list):
+def save_object_np(
+    object_list: list, 
+    object_type: str, 
+    schema: list, 
+    song_ids: list):
     """Saves list object as csv"""
     object_map = {
         "sec_mean_vars": Path("interim", "sections", "means_vars"),
@@ -102,7 +106,7 @@ def save_object_np(object_list: list, object_type: str, song_ids: list):
         "pt_pcas": Path("interim", "pitch_timbre", "pca"),
         "key_changes": Path("interim", "sections", "key_changes")
     }
-    objects = _create_df(object_list, object_type, song_ids)
+    objects = _create_df(object_list, schema, song_ids)
     dt = datetime.now().strftime("%d%m%Y_%H%M%S")
     path = DATA.joinpath(object_map[object_type])
     objects.to_csv(path.joinpath(f"{object_type}_{dt}.csv"))
@@ -111,12 +115,8 @@ def save_object_np(object_list: list, object_type: str, song_ids: list):
 
 def save_objects_np(objects: list):
     for item in objects:
-        save_object_np(item["object"], item["object_type"], item['object_index'])
+        save_object_np(item["object"], item["object_type"], item["columns"], item['object_index'])
     return
 
-def _create_df(array: np.ndarray, schema: list, song_ids: list) -> pd.core.frame.DataFrame:
-    """Creates dataframe from numpy array with a passed through
-    schema & index.
-    """
-    df = pd.DataFrame(array, columns=schema, index=song_ids)
-    return df
+def _create_df(array: np.ndarray, columns: list, song_ids: list) -> pd.core.frame.DataFrame:
+    return pd.DataFrame(array, columns=columns, index=song_ids)

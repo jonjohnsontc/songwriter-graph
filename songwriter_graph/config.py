@@ -47,3 +47,32 @@ feature_cols = ['danceability','energy', 'key', 'loudness', 'mode', 'speechiness
        'pm_dim_9', 'pm_dim_10', 'pm_dim_11', 'pm_dim_12', 'pv_dim_1',
        'pv_dim_2', 'pv_dim_3', 'pv_dim_4', 'pv_dim_5', 'pv_dim_6', 'pv_dim_7',
        'pv_dim_8', 'pv_dim_9', 'pv_dim_10', 'pv_dim_11', 'pv_dim_12']
+
+pt_cols = [f"p_{i}" for i in range(1,13)]
+pt_cols.extend([f"t_{i}" for i in range(1,13)])
+
+section_cols= [
+    'start', 
+    'duration', 
+    'confidence', 
+    'loudness', 
+    'tempo', 
+    'tempo_confidence', 
+    'key', 
+    'key_confidence', 
+    'mode', 
+    'mode_confidence', 
+    'time_signature', 
+    'time_signature_confidence'
+]
+
+section_mean_var_cols = [f"mean_{sec}" for sec in section_cols]
+section_mean_var_cols.extend([f"var_{sec}" for sec in section_cols])
+section_mean_var_cols.append("key_changes")
+
+key_changes_cols = ["key_changes"]
+
+pt_mean_var_cols = [f"mean_{pt}" for pt in pt_cols]
+pt_mean_var_cols.extend([f"var_{pt}" for pt in pt_cols])
+
+pt_pca_cols = [f"pt_{i}_component_{x}" for i in range(12) for x in range(10)]

@@ -45,11 +45,13 @@ def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int
 
 
 # https://stackoverflow.com/a/13224592
-def PCA(data, dims_rescaled_data=2):
+def PCA(data: np.ndarray, dims_rescaled_data: int = 10) -> np.ndarray:
     """
     returns: data transformed in 2 dims/columns + regenerated original data
     pass in: data as 2D NumPy array
     """
+    # transpose the data
+    data = data.T
     # mean center the data
     data -= data.mean(axis=0)
     # calculate the covariance matrix

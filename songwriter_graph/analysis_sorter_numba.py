@@ -9,6 +9,7 @@ from numba import njit
 
 from tqdm.auto import tqdm
 from songwriter_graph.utils import get_files, save_object_np, save_objects_np
+from songwriter_graph.config import key_changes_cols, pt_mean_var_cols, pt_pca_cols, section_mean_var_cols
 
 #TODO: Config
 logging.basicConfig()
@@ -20,10 +21,15 @@ def get_mean_var(song_object: np.ndarray) -> np.ndarray:
     """
     mean = np.apply_along_axis(np.mean, 0, song_object)
     var = np.apply_along_axis(np.var, 0, song_object)
-    return np.concatenate(mean, var)
+    return np.concatenate([mean, var])
 
 
 def get_key_changes(song_keys: np.ndarray) -> int:
+    if len(song_keys)==1:
+        return 0
+    else:
+        start_key = song_keys[0]
+
     kc = 0
     for item in np.nditer(song_keys):
         cur_key = item
@@ -34,11 +40,13 @@ def get_key_changes(song_keys: np.ndarray) -> int:
 
 
 # https://stackoverflow.com/a/13224592
-def PCA(data, dims_rescaled_data=2):
+def PCA(data: np.ndarray, dims_rescaled_data: int = 10) -> np.ndarray:
     """
     returns: data transformed in 2 dims/columns + regenerated original data
     pass in: data as 2D NumPy array
     """
+    # transpose the data
+    data = data.T
     # mean center the data
     data -= data.mean(axis=0)
     # calculate the covariance matrix
@@ -101,26 +109,39 @@ def get_song_objects(analysis_obj: dict) -> dict:
         "song_sections": song_sections}
 
 
+# TODO: Refactor this to take in dict like `save_objects`
 # Unit test this actually clears the list within the dictionary
-def length_check(analysis_objs: dict, song_ids: list):
+def length_check(analysis_objs: list):
     """Checks the size of analysis objects to determine if they're large
     enough to save and clear
     """
-    for key in analysis_objs.keys():
-        if len(analysis_objs[key]) > 10000:
-            save_object_np(analysis_objs[key], key, song_ids)
-            analysis_objs[key].clear()
+    for i in range(len(analysis_objs)):
+        if len(analysis_objs[i]["object"]) > 10000:
+            save_object_np(
+                analysis_objs[i]["object"], 
+                analysis_objs[i]["object_type"], 
+                analysis_objs[i]["columns"], 
+                analysis_objs[i]["object_index"])
+            analysis_objs[i]["object"].clear()
+            analysis_objs[i]["object_index"].clear()
     return    
+
+
+def _append_key_change_to_section(
+    song_section: np.ndarray, key_change: int) -> np.ndarray:
+    return np.append(song_section, key_change)
 
 
 def analysis_sorter_numba(lst: list, fp: str):
     '''Write me pls.
     '''
     song_ids = []
+    # sec_mean_vars_kc = []
     key_changes = []
     sec_mean_vars = []
     pt_mean_vars = []
     pt_pcas = []
+
 
     #TODO: Replacex with logging
     exceptions_dicts = []
@@ -148,9 +169,13 @@ def analysis_sorter_numba(lst: list, fp: str):
         sec_mean_var = get_mean_var(for_analysis["song_sections"])
         sec_mean_vars.append(sec_mean_var)
 
-        # grabbing key changes
-        no_of_key_changes = get_key_changes(for_analysis["song_sections"])
+        # grabbing key changes & adding to section
+        no_of_key_changes = get_key_changes(for_analysis["song_sections"][:, 6])
         key_changes.append(no_of_key_changes)
+        
+        ###### KEY CHANGE SECTION ######
+        # sec_mean_var_kc = _append_key_change_to_section(sec_mean_var, key_changes)
+        # sec_mean_vars_kc.append(sec_mean_var_kc)
 
         # pitch and timbre values
         pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"])
@@ -161,24 +186,32 @@ def analysis_sorter_numba(lst: list, fp: str):
             dims_rescaled_data=10)
         pt_pcas.append(pt_pca)
 
+        ###### ALSO PART OF KEY CHANGE SECTION ######
         # saving objects
-        length_check({
-        "sec_mean_vars":sec_mean_vars,
-        "pt_mean_vars":pt_mean_vars,
-        "pt_pcas":pt_pcas,
-        "key_changes":key_changes}, 
-        song_ids
+        # TODO: refactor dictionary being passed through
+        length_check([
+            {"object":sec_mean_vars, "object_type":"sec_mean_vars",
+            "object_index":song_ids, "columns":section_mean_var_cols},
+            {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
+            "object_index":song_ids, "columns":pt_mean_var_cols},
+            {"object":pt_pcas, "object_type":"pt_pcas",
+            "object_index":song_ids, "columns":pt_pca_cols},
+            {"object":key_changes, "object_type":"key_changes",
+            "object_index":song_ids, "columns":key_changes_cols}
+            ]
         )
     
+    
+    ###### ALSO PART OF KEY CHANGE SECTION ######
     to_save = [
         {"object":sec_mean_vars, "object_type":"sec_mean_vars",
-         "object_index":song_ids},
+         "object_index":song_ids, "columns":section_mean_var_cols},
         {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
-        "object_index":song_ids},
+        "object_index":song_ids, "columns":pt_mean_var_cols},
         {"object":pt_pcas, "object_type":"pt_pcas",
-        "object_index":song_ids},
-        {"object":key_changes, "object_type":"key_changes", 
-        "object_index":song_ids}
+        "object_index":song_ids, "columns":pt_pca_cols},
+        {"object":key_changes, "object_type":"key_changes",
+        "object_index":song_ids, "columns":key_changes_cols},
         ]
 
     save_objects_np(to_save)
