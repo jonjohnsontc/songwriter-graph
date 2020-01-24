@@ -135,7 +135,7 @@ def analysis_sorter(lst: list, fp: str):
     key_changes = []
     sec_mean_vars = []
     pt_mean_vars = []
-    pt_pcas = []
+    # pt_pcas = []
 
     #TODO: Replacex with logging
     exceptions_dicts = []
@@ -169,20 +169,20 @@ def analysis_sorter(lst: list, fp: str):
         pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"], song_id)
         pt_mean_vars.append(pt_vals)
 
-        pt_pca = get_pt_pca(for_analysis["combined_pitch_timbre"], song_id)
-        pt_pcas.append(pt_pca)
+        # pt_pca = get_pt_pca(for_analysis["combined_pitch_timbre"], song_id)
+        # pt_pcas.append(pt_pca)
 
         # saving objects
         length_check({
         "sec_mean_vars":sec_mean_vars,
         "pt_mean_vars":pt_mean_vars,
-        "pt_pcas":pt_pcas,
+        # "pt_pcas":pt_pcas,
         "key_changes":key_changes})
 
     save_objects([
         {"object": sec_mean_vars, "object_type":"sec_mean_vars"},
         {"object": pt_mean_vars, "object_type": "pt_mean_vars"},
-        {"object":pt_pcas, "object_type":"pt_pcas"},
+        # {"object":pt_pcas, "object_type":"pt_pcas"},
         {"object":key_changes, "object_type":"key_changes"}])
 
     return

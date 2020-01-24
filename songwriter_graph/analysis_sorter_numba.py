@@ -5,7 +5,7 @@ from datetime import date
 
 import pandas as pd
 import numpy as np
-from numba import njit
+from numba import jit, njit
 
 from tqdm.auto import tqdm
 from songwriter_graph.utils import get_files, save_object_np, save_objects_np
@@ -14,13 +14,12 @@ from songwriter_graph.config import key_changes_cols, pt_mean_var_cols, pt_pca_c
 #TODO: Config
 logging.basicConfig()
 
-
 def get_mean_var(song_object: np.ndarray) -> np.ndarray:
     """Computes the mean and variance of an analysis json object passed
     through
     """
-    mean = np.apply_along_axis(np.mean, 0, song_object)
-    var = np.apply_along_axis(np.var, 0, song_object)
+    mean = np.mean(song_object, axis=0)
+    var = np.var(song_object, axis=0)
     return np.concatenate([mean, var])
 
 
@@ -83,7 +82,6 @@ def validate_analysis_obj(analysis_obj: dict):
     
     return
 
-
 def get_song_objects(analysis_obj: dict) -> dict:
     """Retrieves objects necessary to compute analysis for"""
    
@@ -136,11 +134,9 @@ def analysis_sorter_numba(lst: list, fp: str):
     '''Write me pls.
     '''
     song_ids = []
-    # sec_mean_vars_kc = []
-    key_changes = []
-    sec_mean_vars = []
+    sec_mean_vars_kc = []
     pt_mean_vars = []
-    pt_pcas = []
+    # pt_pcas = []
 
 
     #TODO: Replacex with logging
@@ -167,51 +163,42 @@ def analysis_sorter_numba(lst: list, fp: str):
 
         # Obtaining section mean & variance 
         sec_mean_var = get_mean_var(for_analysis["song_sections"])
-        sec_mean_vars.append(sec_mean_var)
 
         # grabbing key changes & adding to section
-        no_of_key_changes = get_key_changes(for_analysis["song_sections"][:, 6])
-        key_changes.append(no_of_key_changes)
-        
-        ###### KEY CHANGE SECTION ######
-        # sec_mean_var_kc = _append_key_change_to_section(sec_mean_var, key_changes)
-        # sec_mean_vars_kc.append(sec_mean_var_kc)
+        no_of_key_changes = get_key_changes(for_analysis["song_sections"][:, 6])        
+        sec_mean_var_kc = _append_key_change_to_section(sec_mean_var, no_of_key_changes)
+        sec_mean_vars_kc.append(sec_mean_var_kc)
 
         # pitch and timbre values
         pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"])
         pt_mean_vars.append(pt_vals)
 
-        pt_pca = PCA(
-            for_analysis["combined_pitch_timbre"],
-            dims_rescaled_data=10)
-        pt_pcas.append(pt_pca)
+        # pt_pca = PCA(
+        #     for_analysis["combined_pitch_timbre"],
+        #     dims_rescaled_data=10)
+        # pt_pcas.append(pt_pca)
 
-        ###### ALSO PART OF KEY CHANGE SECTION ######
         # saving objects
         # TODO: refactor dictionary being passed through
         length_check([
-            {"object":sec_mean_vars, "object_type":"sec_mean_vars",
+            {"object":sec_mean_vars_kc, "object_type":"sec_mean_vars",
             "object_index":song_ids, "columns":section_mean_var_cols},
             {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
             "object_index":song_ids, "columns":pt_mean_var_cols},
-            {"object":pt_pcas, "object_type":"pt_pcas",
-            "object_index":song_ids, "columns":pt_pca_cols},
-            {"object":key_changes, "object_type":"key_changes",
-            "object_index":song_ids, "columns":key_changes_cols}
+            # {"object":pt_pcas, "object_type":"pt_pcas",
+            # "object_index":song_ids, "columns":pt_pca_cols},
             ]
         )
     
     
     ###### ALSO PART OF KEY CHANGE SECTION ######
     to_save = [
-        {"object":sec_mean_vars, "object_type":"sec_mean_vars",
+        {"object":sec_mean_vars_kc, "object_type":"sec_mean_vars",
          "object_index":song_ids, "columns":section_mean_var_cols},
         {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
         "object_index":song_ids, "columns":pt_mean_var_cols},
-        {"object":pt_pcas, "object_type":"pt_pcas",
-        "object_index":song_ids, "columns":pt_pca_cols},
-        {"object":key_changes, "object_type":"key_changes",
-        "object_index":song_ids, "columns":key_changes_cols},
+        # {"object":pt_pcas, "object_type":"pt_pcas",
+        # "object_index":song_ids, "columns":pt_pca_cols},
         ]
 
     save_objects_np(to_save)
