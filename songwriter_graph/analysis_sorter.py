@@ -7,41 +7,34 @@ import pandas as pd
 import numpy as np
 
 from tqdm.auto import tqdm
-from songwriter_graph.utils import get_files, save_object, save_objects
+from songwriter_graph.utils import get_files, save_object_np, save_objects_np
+from songwriter_graph.config import key_changes_cols, pt_mean_var_cols, pt_pca_cols, section_mean_var_cols
 
 #TODO: Config
 logging.basicConfig()
 
-
-def get_mean_var(song_object: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
+def get_mean_var(song_object: np.ndarray) -> np.ndarray:
     """Computes the mean and variance of an analysis json object passed
     through
     """
-    mean_var = song_object.agg([np.mean, np.var])
-    mean_var["song_id"] = song_id
-    return mean_var
-    
-
-def get_pt_pca(song: pd.core.frame.DataFrame, song_id: str) -> pd.core.frame.DataFrame:
-    '''Performs PCA on Pitch and Timbre values in a single song segment
-    '''
-    pt_pca = pd.DataFrame(
-        PCA(song, dims_rescaled_data=10),
-        columns=[f"component_{i}" for i in range(1,11)])
-    pt_pca["song_id"] = song_id
-    return pt_pca
+    mean = np.mean(song_object, axis=0)
+    var = np.var(song_object, axis=0)
+    return np.concatenate([mean, var])
 
 
-def get_key_changes(song_sections: pd.core.frame.DataFrame, song_id: str) -> int:
-    song_secs = song_sections.to_dict(orient="list")
-    start_key = song_secs['key'][0]
-    kc = 0 
-    for item in song_secs['key']:
+def get_key_changes(song_keys: np.ndarray) -> int:
+    if len(song_keys)==1:
+        return 0
+    else:
+        start_key = song_keys[0]
+
+    kc = 0
+    for item in np.nditer(song_keys):
         cur_key = item
         if cur_key != start_key:
             start_key = cur_key
             kc += 1
-    return pd.DataFrame.from_dict([{"song_id":song_id, "key_changes": kc}])
+    return kc
 
 
 # https://stackoverflow.com/a/13224592
@@ -88,7 +81,6 @@ def validate_analysis_obj(analysis_obj: dict):
     
     return
 
-
 def get_song_objects(analysis_obj: dict) -> dict:
     """Retrieves objects necessary to compute analysis for"""
    
@@ -101,45 +93,55 @@ def get_song_objects(analysis_obj: dict) -> dict:
         pitches.append(i["pitches"])
         timbre.append(i["timbre"])
     
-    p = pd.DataFrame(pitches, columns=[f"p_{i}" for i in range(1, 13)])
-    t = pd.DataFrame(timbre, columns=[f"t_{i}" for i in range(1, 13)])
-    combined_pitch_timbre = pd.concat([p, t], axis = 1)
+    p = np.array(pitches)
+    t = np.array(timbre)
+    combined_pitch_timbre = np.concatenate([p, t], axis = 1)
     
     # Retrieve song segments
-    song_sections = pd.DataFrame.from_dict(analysis_obj['sections'])
+    song_sections = np.array(
+        [list(item.values()) for item in analysis_obj["sections"]])
 
     return {
         "combined_pitch_timbre": combined_pitch_timbre,
         "song_sections": song_sections}
 
 
+# TODO: Refactor this to take in dict like `save_objects`
 # Unit test this actually clears the list within the dictionary
-def length_check(analysis_objs: dict):
+def length_check(analysis_objs: list):
     """Checks the size of analysis objects to determine if they're large
     enough to save and clear
     """
-    for key in analysis_objs.keys():
-        if len(analysis_objs[key]) > 10000:
-            save_object(analysis_objs[key], key)
-            analysis_objs[key].clear()
+    for i in range(len(analysis_objs)):
+        if len(analysis_objs[i]["object"]) > 10000:
+            save_object_np(
+                analysis_objs[i]["object"], 
+                analysis_objs[i]["object_type"], 
+                analysis_objs[i]["columns"], 
+                analysis_objs[i]["object_index"])
+            analysis_objs[i]["object"].clear()
+            analysis_objs[i]["object_index"].clear()
     return    
 
-# Couple of thoughts currently:
-# I should create a version with a for loop running against a list of files
-# - A version using dask as a scheduler (with threading)
-# - A version using dask as a schedule (with multiprocessing)
 
-def analysis_sorter(lst: list, fp: str):
+def _append_key_change_to_section(
+    song_section: np.ndarray, key_change: int) -> np.ndarray:
+    return np.append(song_section, key_change)
+
+
+def create_matched_tracks_listing(matched_tracks: pd.core.frame.DataFrame) -> list:
+    if "song_id" not in matched_tracks.columns:
+        raise ValueError("matched_tracks expects a dataframe with a column of song_ids")
+    tracks_to_load = matched_tracks["song_id"].to_list()
+    return tracks_to_load
+
+
+def analysis_sorter_numba(lst: list, fp: str):
     '''Write me pls.
     '''
-    key_changes = []
-    sec_mean_vars = []
+    sec_mean_vars_kc = []
     pt_mean_vars = []
-    # pt_pcas = []
-
-    key_changes = {}
-    sec_mean_vars = {}
-    pt_mean_vars = {}
+    song_ids = []
 
     #TODO: Replacex with logging
     exceptions_dicts = []
@@ -158,36 +160,50 @@ def analysis_sorter(lst: list, fp: str):
         # validate json
         validate_analysis_obj(song)
 
+        song_ids.append(song_id)
+
         # retrieve objects for analysis
         for_analysis = get_song_objects(song)
 
         # Obtaining section mean & variance 
-        sec_mean_var = get_mean_var(for_analysis["song_sections"], song_id)
-        sec_mean_vars.append(sec_mean_var)
+        sec_mean_var = get_mean_var(for_analysis["song_sections"])
 
-        # grabbing key changes
-        no_of_key_changes = get_key_changes(for_analysis["song_sections"], song_id)
-        key_changes.append(no_of_key_changes)
+        # grabbing key changes & adding to section
+        no_of_key_changes = get_key_changes(for_analysis["song_sections"][:, 6])        
+        sec_mean_var_kc = _append_key_change_to_section(sec_mean_var, no_of_key_changes)
+        sec_mean_vars_kc.append(sec_mean_var_kc)
 
         # pitch and timbre values
-        pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"], song_id)
+        pt_vals = get_mean_var(for_analysis["combined_pitch_timbre"])
         pt_mean_vars.append(pt_vals)
 
-        # pt_pca = get_pt_pca(for_analysis["combined_pitch_timbre"], song_id)
+        # pt_pca = PCA(
+        #     for_analysis["combined_pitch_timbre"],
+        #     dims_rescaled_data=10)
         # pt_pcas.append(pt_pca)
 
         # saving objects
-        length_check({
-        "sec_mean_vars":sec_mean_vars,
-        "pt_mean_vars":pt_mean_vars,
-        # "pt_pcas":pt_pcas,
-        "key_changes":key_changes})
+        # TODO: refactor dictionary being passed through
+        length_check([
+            {"object":sec_mean_vars_kc, "object_type":"sec_mean_vars",
+            "object_index":song_ids, "columns":section_mean_var_cols},
+            {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
+            "object_index":song_ids, "columns":pt_mean_var_cols},
+            # {"object":pt_pcas, "object_type":"pt_pcas",
+            # "object_index":song_ids, "columns":pt_pca_cols},
+            ]
+        )
+    
+    to_save = [
+        {"object":sec_mean_vars_kc, "object_type":"sec_mean_vars",
+         "object_index":song_ids, "columns":section_mean_var_cols},
+        {"object":pt_mean_vars, "object_type":"pt_mean_vars", 
+        "object_index":song_ids, "columns":pt_mean_var_cols},
+        # {"object":pt_pcas, "object_type":"pt_pcas",
+        # "object_index":song_ids, "columns":pt_pca_cols},
+        ]
 
-    save_objects([
-        {"object": sec_mean_vars, "object_type":"sec_mean_vars"},
-        {"object": pt_mean_vars, "object_type": "pt_mean_vars"},
-        # {"object":pt_pcas, "object_type":"pt_pcas"},
-        {"object":key_changes, "object_type":"key_changes"}])
+    save_objects_np(to_save)
 
     return
 
