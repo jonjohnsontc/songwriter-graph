@@ -1,5 +1,5 @@
-
 # Paths for final dataset creation
+
 songwriter_df_path="data/interim/tracks_w_writers/*"
 song_features_path="data/interim/song_features/*"
 modeling_path="data/modeling/*"
@@ -12,6 +12,10 @@ paths = {
     "segment_path" : "data/interim/analysis_segments/*",
     "song_features_path" : "data/interim/song_features/*",
       }
+
+
+# The following are column names that are used in the various data shaping
+# functions within `analysis_sorter`
 
 non_normalized_cols = [
     'track_id',

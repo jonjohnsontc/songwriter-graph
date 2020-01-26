@@ -96,7 +96,7 @@ def get_song_objects(analysis_obj: dict) -> dict:
     
     p = np.array(pitches)
     t = np.array(timbre)
-    combined_pitch_timbre = np.concatenate([p, t])
+    combined_pitch_timbre = np.concatenate([p, t], axis = 1)
     
     # Retrieve song segments
     song_sections = np.array(
@@ -133,11 +133,9 @@ def _append_key_change_to_section(
 def analysis_sorter_numba(lst: list, fp: str):
     '''Write me pls.
     '''
-    song_ids = []
     sec_mean_vars_kc = []
     pt_mean_vars = []
-    # pt_pcas = []
-
+    song_ids = []
 
     #TODO: Replacex with logging
     exceptions_dicts = []
@@ -190,8 +188,6 @@ def analysis_sorter_numba(lst: list, fp: str):
             ]
         )
     
-    
-    ###### ALSO PART OF KEY CHANGE SECTION ######
     to_save = [
         {"object":sec_mean_vars_kc, "object_type":"sec_mean_vars",
          "object_index":song_ids, "columns":section_mean_var_cols},

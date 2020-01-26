@@ -137,6 +137,10 @@ def analysis_sorter(lst: list, fp: str):
     pt_mean_vars = []
     # pt_pcas = []
 
+    key_changes = {}
+    sec_mean_vars = {}
+    pt_mean_vars = {}
+
     #TODO: Replacex with logging
     exceptions_dicts = []
 
