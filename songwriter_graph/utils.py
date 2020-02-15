@@ -3,19 +3,33 @@ import os
 from pathlib import Path, PurePath
 from datetime import datetime
 import json
+from typing import Generator, Union
 
 import s3fs
-
+import os
 import dask
 import dask.dataframe as dd
 import pandas as pd
 import numpy as np
 
+from sqlalchemy.engine import create_engine
+from psycopg2.extensions import connection
+# from dotenv import load_dotenv
+# load_dotenv()
+
 from songwriter_graph.config import feature_cols
 
 DATA = Path.home().joinpath("SWI_data", "data")
 
-def find_latest_file_s3(path):
+# def connect_to_postgres() -> connection:
+#     # postgresql+psycopg2://user:password@host:port/dbname
+#     conn = create_engine(
+#         f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:5432/postgres"
+#     )
+#     return conn
+
+
+def find_latest_file_s3(path: Union[str,Path]):
     """Finds the latest file in an s3 path, based off of a glob string
     passed in 'path'
 
@@ -65,7 +79,7 @@ def load_json(path: PurePath) -> dict:
     return obj
 
 
-def get_files(path: str) -> list:
+def get_files(path: str) -> Generator:
     filepaths = DATA.joinpath(path).glob("*.json")
     return filepaths
 
@@ -77,6 +91,7 @@ def save_object(object_list: list, object_type: str):
         "pt_mean_vars": Path("interim", "pitch_timbre", "means_vars"),
         "pt_pcas": Path("interim", "pitch_timbre", "pca"),
         "key_changes": Path("interim", "sections", "key_changes")
+
     }
     objects = pd.concat(object_list)
     dt = datetime.now().strftime("%d%m%Y_%H%M%S")
@@ -94,6 +109,26 @@ def save_objects(objects: list):
     return
 
 
+def save_object_sql(
+    object_list: list,
+    object_type: str,
+    columns: list,
+    song_ids: list
+    ):
+    """Saves list object to SQLite"""
+    object_map = {
+        "sec_mean_vars": Path("interim", "sections", "means_vars"),
+        "pt_mean_vars": Path("interim", "pitch_timbre", "means_vars"),
+        "pt_pcas": Path("interim", "pitch_timbre", "pca"),
+        "key_changes": Path("interim", "sections", "key_changes")
+    }
+    objects = pd.DataFrame(data=object_list, columns=columns)
+    objects = pd.concat([song_ids,objects])
+    dt = datetime.now().strftime("%%m%Y_%H%M%S")
+    path = DATA.joinpath(object_map[object_type])
+    # objects.to_csv(path.joinpath(f"{object_type}_{dt}.csv"))
+    objects.to_sql()
+    
 def save_object_np(
     object_list: list, 
     object_type: str, 
@@ -106,12 +141,16 @@ def save_object_np(
         "pt_pcas": Path("interim", "pitch_timbre", "pca"),
         "key_changes": Path("interim", "sections", "key_changes")
     }
-    objects = pd.DataFrame(data=object_list, columns=columns, index=song_ids)
+    objects = pd.DataFrame(
+        data=object_list, 
+        columns=columns, 
+        )
+    song_ids_series = pd.Series(song_ids)
+    objects = pd.concat([song_ids_series,objects], axis=1)
     dt = datetime.now().strftime("%d%m%Y_%H%M%S")
     path = DATA.joinpath(object_map[object_type])
     objects.to_csv(path.joinpath(f"{object_type}_{dt}.csv"))
     return
-
 
 def save_objects_np(objects: list):
     for item in objects:
