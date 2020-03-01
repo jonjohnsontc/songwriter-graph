@@ -94,7 +94,7 @@ def validate_analysis_obj(analysis_obj: dict):
         pass
     else:
         raise ValueError("Analysis object not valid")
-    
+
 
     return
 
@@ -147,7 +147,7 @@ def length_check(analysis_objs: list, length: int):
 
 def _append_key_change_to_section(
     song_section: np.ndarray, key_change: int
-) -> np.ndarray:    
+) -> np.ndarray:
     return np.append(song_section, key_change)
 
 
@@ -170,9 +170,9 @@ def analysis_sorter(track_listing_path: str, fp: str):
     pt_mean_vars = []
     song_ids = []
 
-    track_listing = pd.read_csv(track_listing_path)
-    tracks_to_load = create_matched_tracks_listing(track_listing)
-    
+    track_listing: pd.DataFrame = pd.read_csv(track_listing_path)
+    tracks_to_load: list = create_matched_tracks_listing(track_listing)
+
 
     for song_id in tqdm(tracks_to_load):
         try:
@@ -183,7 +183,7 @@ def analysis_sorter(track_listing_path: str, fp: str):
                 f"Problem opening file, {song_id}.json. {e}", exc_info=True
             )
             continue
-        
+
         #validate json object
         try:
             validate_analysis_obj(song)
@@ -197,7 +197,7 @@ def analysis_sorter(track_listing_path: str, fp: str):
 
         # retrieve objects for analysis
         for_analysis = get_song_objects(song)
-        
+
         if len(for_analysis["song_sections"].shape) > 1:
            # Obtaining section mean & variance
             sec_mean_var = get_mean_var(for_analysis["song_sections"])
@@ -208,7 +208,7 @@ def analysis_sorter(track_listing_path: str, fp: str):
         else:
             sec_mean_var = for_analysis["song_sections"]
             no_of_key_changes = 0
-        
+
         sec_mean_var_kc = _append_key_change_to_section(
             sec_mean_var, no_of_key_changes
         )

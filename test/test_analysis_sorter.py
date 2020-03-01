@@ -1,10 +1,15 @@
 import json
 
 from songwriter_graph.analysis_sorter import get_mean_var
+from songwriter_graph.utils import save_object_np
 import pytest
 
-import numpy as np 
-import pandas as pd 
+import numpy as np
+import pandas as pd
+
+@pytest.fixture
+
+
 
 #TODO: Add some actual test here
 # currently takes an assload of time to run
@@ -37,4 +42,17 @@ def length_check_properly_clears_analysis_obj_dict():
 
 
 def length_check_properly_checks_object_lenghts():
+    pass
+
+# Need:
+# list of song ids
+# a fake song fixture,
+# monkeypatched functions (or do i?):
+# - get_song_objects
+# - get_mean_var
+# - get_key_changes
+# - On second thought, i'll say no for now
+
+
+def test_analysis_sorter_preserves_order():
     pass
