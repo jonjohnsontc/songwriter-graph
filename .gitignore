@@ -18,6 +18,7 @@ __pycache__*
 .DS_Store
 .python_history
 .mypy_cache
+.venv*
 
 # data files
 genius_song_ids.json

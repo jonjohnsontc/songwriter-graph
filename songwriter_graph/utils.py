@@ -7,8 +7,6 @@ from typing import Generator, Union
 
 import s3fs
 import os
-import dask
-import dask.dataframe as dd
 import pandas as pd
 import numpy as np
 
@@ -19,7 +17,7 @@ from psycopg2.extensions import connection
 
 from songwriter_graph.config import feature_cols
 
-DATA = Path.home().joinpath("SWI_data", "data")
+DATA = Path.home().joinpath("dev", "swg", "SWI_data", "data")
 
 # def connect_to_postgres() -> connection:
 #     # postgresql+psycopg2://user:password@host:port/dbname
@@ -61,22 +59,9 @@ def drop_non_numeric_feats(df):
     return just_numeric
 
 
-def load_dd(path):
-    ddf = dd.read_csv(path)\
-            .rename(columns = {"Unnamed: 0":"index"})\
-            .set_index('index')
-    return ddf
-
-
 def load_df(path):
     df = pd.read_csv(path, index_col=0)
     return df
-
-@dask.delayed
-def load_json(path: PurePath) -> dict:
-    with path.open() as f:
-        obj = json.load(f)
-    return obj
 
 
 def get_files(path: str) -> Generator:

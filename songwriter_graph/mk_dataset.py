@@ -107,8 +107,8 @@ def robust_scale(array):
 
 
 def mk_avg_sngwrtr_value(ddf):
-    """Creates an average song value for each songwriter included in the 
-    dataset, and is combined with the original dataset to return a 
+    """Creates an average song value for each songwriter included in the
+    dataset, and is combined with the original dataset to return a
     new dask dataframe with said avg values
     """
     grouped_vals_ddf = ddf.groupby("WID").mean()
@@ -143,14 +143,14 @@ def normalize_sngwriter(df, how="meanstd"):
 
     if how == "meanstd":
         grouped_vals_ddf = subset_df.groupby("WID").transform(
-            lambda x: ((x - x.mean()) / x.std() if x.std() is not 0 else 0)
+            lambda x: ((x - x.mean()) / x.std() if x.std() != 0 else 0)
         )
 
     return grouped_vals_ddf
 
 
 def mk_msong_list(song_list):
-    """Retrieve `track_name` and `track_id` for each song and add to 
+    """Retrieve `track_name` and `track_id` for each song and add to
     separate listing.
     """
     master_song_list = []
@@ -166,7 +166,7 @@ def parse_args():
     """Parses arguments for dataset creation script"""
 
     description = """Script for creating full songwriter dataset prior
-    to modeling. 
+    to modeling.
     """
 
     parser = argparse.ArgumentParser(description=description)

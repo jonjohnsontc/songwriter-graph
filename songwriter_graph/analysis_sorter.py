@@ -20,6 +20,7 @@ from songwriter_graph.config import (
 
 TIME_AT_RUN = datetime.now().strftime("%Y%M%d_%H%M%S")
 
+# file doesn't seem to be written when executing in nb
 logging.basicConfig(
     level=logging.DEBUG, filename=f"logs/run_{TIME_AT_RUN}.log", filemode="w"
     )
@@ -224,24 +225,24 @@ def analysis_sorter(track_listing_path: str, fp: str):
         # pt_pcas.append(pt_pca)
 
         # saving objects
-        length_check(
-            [
-                {
-                    "object": sec_mean_vars_kc,
-                    "object_type": "sec_mean_vars",
-                    "object_index": song_ids,
-                    "columns": section_mean_var_cols,
-                },
-                {
-                    "object": pt_mean_vars,
-                    "object_type": "pt_mean_vars",
-                    "object_index": song_ids,
-                    "columns": pt_mean_var_cols,
-                },
-                # {"object":pt_pcas, "object_type":"pt_pcas",
-                # "object_index":song_ids, "columns":pt_pca_cols},
-            ]
-        , 10000)
+        # length_check(
+        #     [
+        #         {
+        #             "object": sec_mean_vars_kc,
+        #             "object_type": "sec_mean_vars",
+        #             "object_index": song_ids,
+        #             "columns": section_mean_var_cols,
+        #         },
+        #         {
+        #             "object": pt_mean_vars,
+        #             "object_type": "pt_mean_vars",
+        #             "object_index": song_ids,
+        #             "columns": pt_mean_var_cols,
+        #         },
+        #         # {"object":pt_pcas, "object_type":"pt_pcas",
+        #         # "object_index":song_ids, "columns":pt_pca_cols},
+        #     ]
+        # , 10000)
 
     to_save = [
         {
