@@ -32,8 +32,8 @@ genius_song_details*.json
 pickle/cos_sim_mat_g.npy
 pickle/ascap_credits.pkl
 
-# scrape logz
-geckodriver.log
+# logs
+*.log
 
 # misc / scratch files
 query_api.ipynb
