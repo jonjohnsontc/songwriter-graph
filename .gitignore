@@ -17,6 +17,8 @@ __pycache__*
 *.swp
 .DS_Store
 .python_history
+.mypy_cache
+.venv*
 
 # data files
 genius_song_ids.json
@@ -30,11 +32,16 @@ genius_song_details*.json
 pickle/cos_sim_mat_g.npy
 pickle/ascap_credits.pkl
 
-# scrape logz
-geckodriver.log
+# logs
+*.log
 
 # misc / scratch files
 query_api.ipynb
 notebooks/dask-worker-space/
 notebooks/Untitled.ipynb
 notebooks/scratch
+
+# the liberry
+build/
+dist/
+songwriter_graph.egg-info

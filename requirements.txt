@@ -5,6 +5,7 @@ numpy
 boto3==1.9.215
 dask_ml==1.0.0
 joblib==0.13.2
+jupyterlab
 pandas==0.25.1
 partd
 s3fs
