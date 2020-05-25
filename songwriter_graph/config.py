@@ -17,6 +17,22 @@ paths = {
 # The following are column names that are used in the various data shaping
 # functions within `analysis_sorter`
 
+metadata_cols = [
+    'WID',
+    'artist_name',
+    'song_id',
+    'song_title',
+    'CID',
+    'PID',
+    'Title',
+    'Performer Name',
+    'Writer Name',
+    'IPI',
+    'PRO',
+    'contribid'
+]
+
+
 non_normalized_cols = [
     "track_id",
     "Song Title",
