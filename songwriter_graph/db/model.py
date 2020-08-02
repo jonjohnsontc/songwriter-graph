@@ -8,6 +8,7 @@ from sqlalchemy.dialects.postgresql import INTEGER, VARCHAR
 
 writers = Table(
     "writers",
+    MetaData(),
     Column("wid", INTEGER),
     Column("writer_name", VARCHAR(length=50)),
     Column("ipi", INTEGER),
@@ -16,6 +17,7 @@ writers = Table(
 
 neighbors = Table(
     "neighbors",
+    MetaData(),
     Column("wid", INTEGER),
     Column("top_match_1", INTEGER),
     Column("top_match_1_count", INTEGER),
