@@ -1,0 +1,9 @@
+{
+    "SQLALCHEMY_DATABASE_URI": {
+        "drivername": "postgresql+psycopg2",
+        "username": "postgres",
+        "password": "",
+        "host": "localhost",
+        "port": 5432,
+        "database": "postgres"}
+}
