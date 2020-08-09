@@ -6,7 +6,6 @@ from sqlalchemy import between, select, func, desc, case
 from songwriter_graph.db.model import writers, neighbors
 from songwriter_graph.db.utils import sanitize_text
 
-
 def get_writer(connection, wid):
     """Retrieves writer record from writers table, based on the WID
     
@@ -94,4 +93,6 @@ def get_neighbors(connection, wid):
         neighbors.c.top_match_10])\
             .where(neighbors.c.wid == wid)
     
-    return connection.execute(neighbor_results).fetchone().items()
+    cool_stuff = connection.execute(neighbor_results).fetchone().items()
+
+    return cool_stuff
