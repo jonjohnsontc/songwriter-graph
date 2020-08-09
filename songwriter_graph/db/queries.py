@@ -93,6 +93,6 @@ def get_neighbors(connection, wid):
         neighbors.c.top_match_10])\
             .where(neighbors.c.wid == wid)
     
-    cool_stuff = connection.execute(neighbor_results).fetchone().items()
+    neighbor_results = connection.execute(neighbor_results).fetchone().items()
 
     return cool_stuff
