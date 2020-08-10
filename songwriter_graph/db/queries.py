@@ -95,4 +95,4 @@ def get_neighbors(connection, wid):
     
     neighbor_results = connection.execute(neighbor_results).fetchone().items()
 
-    return cool_stuff
+    return neighbor_results

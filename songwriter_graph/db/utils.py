@@ -1,4 +1,3 @@
-# functions to connect and retrieve data from postgres
 import json
 import os
 from pathlib import Path
@@ -14,8 +13,8 @@ DRIVER = "postgresql+psycopg2"
 def read_config(config_path):
     with open(config_path) as f:
         config = json.load(f)
-    
-    config["SQLALCHEMY_DATABASE_URI"]["password"] = PG_PASSWORD
+
+    config["SQLALCHEMY_DATABASE_URI"] = config["SQLALCHEMY_DATABASE_URI"].replace("password", PG_PASSWORD)
     return config
 
 
