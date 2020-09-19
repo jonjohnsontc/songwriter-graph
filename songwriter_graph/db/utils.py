@@ -40,4 +40,4 @@ def to_json():
     pass
 
 
-CONFIG = read_config(Path("/Users/jonjohnson/dev/swg/Song_Index/songwriter_graph/config.json"))
+# CONFIG = read_config(Path("/Users/jonjohnson/dev/swg/Song_Index/songwriter_graph/config.json"))

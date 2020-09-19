@@ -1,7 +1,6 @@
 from pathlib import Path
 
 from flask import Flask
-from flask_restx import Api
 from flask_sqlalchemy import SQLAlchemy
 
 from songwriter_graph.web.apis import api

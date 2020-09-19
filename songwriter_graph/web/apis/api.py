@@ -2,8 +2,6 @@ import time
 
 from flask_restx import Resource, Namespace
 
-from songwriter_graph.web.apis import api
-
 #TODO: Replace this with something more robust - like what cake does
 #      giving connection a default kwarg of 'None' in the queries
 #      so that it can change depending upon the environment
