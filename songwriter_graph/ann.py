@@ -32,7 +32,7 @@ def create_annoy_index(df, non_numeric_cols=None):
 
 
 def build_annoy_indices(ai, n_trees=500):
-    """Builds and saves annoy indices"""
+    """Builds d saves annoy indices"""
     return ai.build(n_trees)
     
 

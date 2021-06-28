@@ -12,19 +12,19 @@ import numpy as np
 
 from sqlalchemy.engine import create_engine
 from psycopg2.extensions import connection
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 from songwriter_graph.config import feature_cols
 
 DATA = Path.home().joinpath("dev", "swg", "SWI_data", "data")
 
-# def connect_to_postgres() -> connection:
-#     # postgresql+psycopg2://user:password@host:port/dbname
-#     conn = create_engine(
-#         f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@{os.getenv('POSTGRES_HOST')}:5432/postgres"
-#     )
-#     return conn
+def connect_to_postgres() -> connection:
+    # postgresql+psycopg2://user:password@host:port/dbname
+    conn = create_engine(
+        f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/postgres"
+    )
+    return conn
 
 
 def find_latest_file_s3(path: Union[str,Path]):

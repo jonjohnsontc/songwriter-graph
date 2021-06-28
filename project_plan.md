@@ -1,24 +1,29 @@
-# Songwriter Graph - 90 day-ish project plan
-- Concluding on 3/31/2020
+# Project Plan - Pulling More Tracks from Spotify
 
-## Outline: Things I'd Like to do:
-- Test performance of analysis sorter through different means
-- Add pre-processed data for model into database
-- Create new dataset for modeling
-- Create ANN model
-- Test several variations to ANN
-- Contribute to "Semi-Exhaustive Analysis of Nearest Neighbor Approaches"
-- Re-create development environment to better reflect what I'm working with
-- Consider using poetry, and leveraging the pyproject.toml file for requirements
-- Add unit tests
-  - analysis_sorter
-- Clean up repository 
-  - Get rid of old .py files
-- (Maybe) add raw song files to some sort of data lake or warehouse
-- Build site using Flask
-- Launch website
+I'd like to start steadily pulling tracks from spotify's api again. I want to build a song dataset that is diverse and reflects how people are listening to music now. 
 
-## Step-by-Step Plan
-- 1/18 - 1/25: Test performance of analysis sorter / Create unit tests for analysis sorter elements
-- 1/26 - 2/1: Build database for the pre-processed data + Create ANN model
-- 
+- I think my approach should be playlist based
+  - Pulling songs from hot playlists per country?
+  - Pulling associated artist full catalogs?
+  - How would I capture older songs? (2019-2020)
+    - Pulling associated artist catalog results
+
+- I might be able to use `snapshot_id` to check in the future for changes to playlists
+
+## What do I need per track?
+
+- To match current song dataset
+  - tracks
+  - audio features
+  - audio analysis
+- To store all available track data
+
+## Category Based Pulling
+
+- At some cadence (weekly?)
+- Pull all categories in all markets
+  - Pull associated playlists for each category
+    - I get track data from that
+    - Pull associated audio features for each track
+    - Pull associated audio analysis for each track (LATER)
+      - Should I leave this for later? Since it's so data intensive? Like, only pull if we match to a songwriter record?
