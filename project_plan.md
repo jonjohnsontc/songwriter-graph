@@ -27,3 +27,7 @@ I'd like to start steadily pulling tracks from spotify's api again. I want to bu
     - Pull associated audio features for each track
     - Pull associated audio analysis for each track (LATER)
       - Should I leave this for later? Since it's so data intensive? Like, only pull if we match to a songwriter record?
+
+### Category Based Pulling - Updates
+
+ 
