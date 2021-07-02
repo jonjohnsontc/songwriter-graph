@@ -7,11 +7,11 @@ import spotipy
 from sqlalchemy.engine import create_engine
 from dotenv import load_dotenv
 
+# TODO: Make sure I remove this before merging to master
 load_dotenv("/Users/jonjohnson/dev/swg/Song_Index/.env")
 
 
 def connect_to_postgres():
-    # postgresql+psycopg2://user:password@host:port/dbname
     engine = create_engine(
         f"postgresql+psycopg2://{os.getenv('POSTGRES_USER')}:{os.getenv('POSTGRES_PASSWORD')}@localhost:5432/postgres"
     )
@@ -36,16 +36,12 @@ def get_categories(client: spotipy.Spotify, countries: list = ["US"]) -> dict:
     for market in countries:
         cat_resp = client.categories(country=market, limit=50)
 
-        total_categories = cat_resp["categories"]["total"]
-        while total_categories > len(cat_resp["categories"]["items"]):
-            offset = len(cat_resp["categories"]["items"])
-            addtl_cat_resp = client.categories(
-                country=market, limit=50, offset=offset
-            )
-            additional_cats = addtl_cat_resp["categories"]["items"]
-            cat_resp["categories"]["items"].extend(additional_cats)
+        categories = cat_resp["categories"]["items"]
+        while cat_resp["categories"]["next"]:
+            cat_resp = client.next(cat_resp)
+            categories.extend(cat_resp["categories"]["items"])
 
-        all_categories_per_country[market] = cat_resp
+        all_categories_per_country[market] = categories
 
     return all_categories_per_country
 
@@ -58,23 +54,17 @@ def get_category_playlists(
     for category in category_ids:
         cat_resp = client.category_playlists(category_id=category, limit=50)
 
-        total_cat_playlists = cat_resp["categories"]["total"]
-        while total_cat_playlists > len(cat_resp["categories"]["items"]):
-            offset = len(cat_resp["categories"]["items"])
-            additional_cat_resp = client.category_playlists(
-                category_id=category, offset=offset, limit=50
-            )
-            addtl_cat_playlists = additional_cat_resp["categories"]["items"]
-            additional_cat_resp["categories"]["items"].extend(
-                addtl_cat_playlists
-            )
+        category_playlists = cat_resp["playlists"]["items"]
+        while cat_resp["playlists"]["next"]:
+            cat_resp = client.next(cat_resp)
+            category_playlists.extend(cat_resp["categories"]["items"])
 
         all_category_playlists[category] = cat_resp
 
     return all_category_playlists
 
 
-def get_songs():
+def get_tracks_from_playlist(client: spotipy.Spotify, playlist: dict) -> list:
     pass
 
 
@@ -98,6 +88,3 @@ def main():
     )
     connection.close()
     return
-
-
-main()

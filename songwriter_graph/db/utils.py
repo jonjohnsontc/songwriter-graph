@@ -3,9 +3,10 @@ import os
 
 from sqlalchemy.engine import create_engine
 from dotenv import load_dotenv
+load_dotenv("")
 
 # TODO: Replace PG_PASSWORD with getenv
-# PG_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+PG_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 DRIVER = "postgresql+psycopg2"
 
 def connect():
