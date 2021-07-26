@@ -8,11 +8,6 @@ import numpy as np
 import pandas as pd
 
 
-# TODO: Don't think this is worth testing -- just concats np.mean + np.var
-def test_get_mean_var_returns_mean_and_variance():
-    pass
-
-
 # TODO: Should I be doing this? Do I need to test PCA? Can I test it?
 def test_get_pt_pca_produces_accurate_pca():
     pass
@@ -37,23 +32,9 @@ def test_validate_analysis_obj_throws_exceptions_for_bad_data(test_song):
     with pytest.raises(ValueError):
         validate_analysis_obj(song_no_sections)
 
-
-def length_check_properly_clears_analysis_obj_dict():
-    pass
-
-
-def length_check_properly_checks_object_lenghts():
-    pass
-
-# Need:
-# list of song ids
-# a fake song fixture,
-# monkeypatched functions (or do i?):
-# - get_song_objects
-# - get_mean_var
-# - get_key_changes
-# - On second thought, i'll say no for now
-
-
+# TODO: I'm not quite sure what form this is going to take. But at least one calculation
+#       `get_key_changes` is based on the position in the array that a value is assigned to
+#       , but I don't know if the order will always stay the same (i.e., `key` is always
+#       the sixth field in song sections within an analysis obj)
 def test_analysis_sorter_preserves_order():
     pass
