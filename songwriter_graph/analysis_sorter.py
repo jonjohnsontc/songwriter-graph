@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 from typing import List
+from _pytest.python_api import raises
 
 import pandas as pd
 import numpy as np
@@ -83,21 +84,33 @@ def validate_analysis_obj(analysis_obj: dict):
     """Validates that analysis object passed through can be correctly
     parsed.
     """
-    if (
-        isinstance(analysis_obj, dict)
-        & ("sections" in analysis_obj)
-        & ("segments" in analysis_obj)
-        & isinstance(analysis_obj["segments"], Iterable)
-        & isinstance(analysis_obj["sections"], Iterable)
-        & (len(analysis_obj["segments"]) > 0)
-        & (len(analysis_obj["sections"]) > 0)
-    ):
-        pass
+    
+    # The types of errors raised don't line up with the type that they 
+    # would commonly fall under. Basically, I'd like a all analysis object 
+    # Exceptions to be of the same type and I don't yet have a custom one.
+    if isinstance(analysis_obj, dict):
+        
+        if "sections" in analysis_obj and "segments" in analysis_obj:
+            
+            if isinstance(analysis_obj["sections"], Iterable)\
+                 and isinstance(analysis_obj, Iterable):
+                
+                if len(analysis_obj["sections"]) > 0 \
+                    and len(analysis_obj["segments"]) > 0:
+                    
+                    return
+                
+                else:
+                    raise ValueError("Sections or Segments empty")
+
+            else:
+                raise ValueError("Sections or Segments not Iterable")
+        
+        else:
+            raise ValueError("Sections or Segments not in obj")
+    
     else:
         raise ValueError("Analysis object not valid")
-
-
-    return
 
 
 def get_song_objects(analysis_obj: dict) -> dict:

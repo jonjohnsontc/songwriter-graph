@@ -1,6 +1,6 @@
 import json
 
-from songwriter_graph.analysis_sorter import get_mean_var, get_key_changes
+from songwriter_graph.analysis_sorter import get_mean_var, get_key_changes, validate_analysis_obj
 from songwriter_graph.utils import save_object_np
 import pytest
 
@@ -31,8 +31,11 @@ def test_get_key_changes_produces_accurate_no():
     assert actual == expected
 
 
-def validate_analysis_obj_properly_throws_exception():
-    pass
+def test_validate_analysis_obj_throws_exceptions_for_bad_data(test_song):
+    song_no_sections = test_song.copy()
+    song_no_sections.pop('sections')
+    with pytest.raises(ValueError):
+        validate_analysis_obj(song_no_sections)
 
 
 def length_check_properly_clears_analysis_obj_dict():
