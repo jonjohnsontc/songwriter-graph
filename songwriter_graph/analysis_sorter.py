@@ -5,7 +5,6 @@ import logging
 import os
 import sys
 from typing import List
-from _pytest.python_api import raises
 
 import pandas as pd
 import numpy as np
@@ -84,7 +83,7 @@ def validate_analysis_obj(analysis_obj: dict):
     """Validates that analysis object passed through can be correctly
     parsed.
     """
-    
+
     # The types of errors raised don't line up with the type that they 
     # would commonly fall under. Basically, I'd like a all analysis object 
     # Exceptions to be of the same type and I don't yet have a custom one.
