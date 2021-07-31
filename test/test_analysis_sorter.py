@@ -1,4 +1,8 @@
 import json
+import pytest
+
+import numpy as np
+import pandas as pd
 
 from songwriter_graph.analysis_sorter import (
     get_mean_var,
@@ -6,10 +10,6 @@ from songwriter_graph.analysis_sorter import (
     validate_analysis_obj,
 )
 from songwriter_graph.utils import save_object_np
-import pytest
-
-import numpy as np
-import pandas as pd
 
 
 # TODO: Should I be doing this? Do I need to test PCA? Can I test it?

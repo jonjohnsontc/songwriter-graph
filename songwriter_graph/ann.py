@@ -1,8 +1,8 @@
-# This was initially written to build the AnnoyIndex which underlies at least
-# a couple of SWG models. However, I ended up doing all of the actual work in
-# building in indices via notebooks and iPython. The functions can still be
-# referenced, but no main script was ever completed
-from collections import defaultdict, Counter
+"""This was initially written to build the AnnoyIndex which underlies at least
+a couple of SWG models. However, I ended up doing all of the actual work in
+building in indices via notebooks and iPython. The functions can still be
+referenced, but no main script was ever completed"""
+from collections import Counter
 from argparse import ArgumentParser
 from datetime import datetime
 

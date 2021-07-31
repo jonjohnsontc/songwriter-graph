@@ -38,6 +38,3 @@ def test_song() -> dict:
     with open(f"{filepath}/fixtures/example_song_analysis.json", "r") as f:
         song = json.load(f)
     return song
-
-# TODO; The below are from the old `test_utils.py` not sure if I still need them
-#       as fixtures
